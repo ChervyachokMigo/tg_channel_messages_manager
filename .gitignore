@@ -1,9 +1,5 @@
-
 /node_modules/
-miss_osz.json
-miss_osz_.json
-result.json
+/userdata/
 tg_beatmaps_messages.json
-config.js
-osu_token.json
 test.js
+result.json
