@@ -1,0 +1,15 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"files.exclude": {
+			"1AgAOMTQ5LjE1NC4xNjcuNDEBu43FxC8wG7JANUdfhWw9juRe4G": true,
+			"node_modules": true,
+			"result.json": true,
+			"tg_beatmaps_messages.json": true
+		}
+	}
+}

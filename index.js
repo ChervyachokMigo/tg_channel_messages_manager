@@ -9,12 +9,13 @@ const { load, get_messages } = require('./bot');
 
 const { check_miss_osz, debug_show_single_messages, check_duplicates } = require('./config');
 const { writeFileSync, existsSync, readFileSync } = require('fs');
+const { prepareDB } = require('./DB/defines');
 
 const chunk_messages = load_messages('result.json');
 
 let chunk_count = [0];
 
-let beatmaps = [];
+let sended_beatmaps = [];
 
 if (!existsSync('tg_beatmaps_messages.json')){
 
@@ -73,13 +74,13 @@ if (!existsSync('tg_beatmaps_messages.json')){
             }
         }
 
-        beatmaps.push({info_message, media_1, media_2, message_id_file: id, beatmapset_id});
+        sended_beatmaps.push({info_message, media_1, media_2, message_id_file: id, beatmapset_id});
         
     }
 
     console.log(chunk_count.map((x, i)=>`${i}: ${x}`).join('\n'));
 
-    beatmaps.chunk_count = chunk_count;
+    sended_beatmaps.chunk_count = chunk_count;
 
     writeFileSync('tg_beatmaps_messages.json', JSON.stringify(beatmaps), 'utf8');
 
@@ -87,15 +88,16 @@ if (!existsSync('tg_beatmaps_messages.json')){
         miss_osz_save_results();
     }
 } else {
-    beatmaps = JSON.parse(readFileSync('tg_beatmaps_messages.json', 'utf8'));
+    sended_beatmaps = JSON.parse(readFileSync('tg_beatmaps_messages.json', 'utf8'));
 }
 
-console.log('loaded', beatmaps.length);
-
-
-
+console.log('loaded sended_beatmaps from chat', sended_beatmaps.length);
 
 ( async () => {
+
+    await prepareDB();
+
+    MYSQL
 
     //await load();
     //(await get_messages([105258])).forEach( async (v) => {

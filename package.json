@@ -10,8 +10,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@sequelize/core": "^7.0.0-alpha.37",
     "input": "^1.0.1",
-    "node-telegram-bot-api": "^0.64.0",
+    "mysql2": "^3.9.1",
     "telegram": "^2.19.10"
   }
 }
