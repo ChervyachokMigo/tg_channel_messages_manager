@@ -1,11 +1,11 @@
-const fs = require('fs');
+const { readFileSync } = require('fs');
 
 module.exports = {
     load_messages: (filepath) => {
         let message_chunks = [];
         let current = -1;
 
-        const messages = JSON.parse( fs.readFileSync (filepath, { encoding: 'utf8' }) ).messages;
+        const messages = JSON.parse( readFileSync (filepath, { encoding: 'utf8' }) ).messages;
 
         const new_chunk = (message) => {
             message_chunks.push( [ message ] );

@@ -1,4 +1,5 @@
-const { MYSQL_SAVE, MYSQL_DELETE } = require("../modules/DB/base");
+const { MYSQL_SAVE, MYSQL_DELETE, MYSQL_GET_ALL } = require("../modules/DB/base");
+const { check_beatmaps_db_records } = require("../userdata/config");
 
 module.exports = {
     check_beatmaps_in_chat: async ( beatmaps_chat, beatmaps_db ) => {
@@ -29,5 +30,16 @@ module.exports = {
         }
     
         console.log('ended');
+    },
+
+    check_beatmaps: async (chat_beatmaps) => {
+        const beatmaps_ids_chat = chat_beatmaps.map( x => Number(x.beatmapset_id) );
+        const sended_maps_db = (await MYSQL_GET_ALL('sended_map_db')).map( x => x['beatmapset_id'] );
+        console.log('loaded chat sended_beatmaps from db', sended_maps_db.length);
+    
+        if(check_beatmaps_db_records){
+            await exports.check_beatmaps_in_chat(beatmaps_ids_chat, sended_maps_db);
+            await exports.check_beatmaps_in_db(beatmaps_ids_chat, sended_maps_db);
+        }
     }
 }
