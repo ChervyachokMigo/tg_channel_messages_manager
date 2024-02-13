@@ -7,9 +7,11 @@ const get_message_id_file  = require('./get_message_id_file');
 const { inc_miss_if_error, miss_osz_save_results } = require('./miss_osz');
 const { load, get_messages } = require('./bot');
 
-const { check_miss_osz, debug_show_single_messages, check_duplicates } = require('./config');
+const { check_miss_osz, debug_show_single_messages, check_duplicates, check_beatmaps_db_records } = require('./config');
 const { writeFileSync, existsSync, readFileSync } = require('fs');
 const { prepareDB } = require('./DB/defines');
+const { MYSQL_GET_ALL, MYSQL_DELETE, MYSQL_SAVE } = require('./DB/base');
+const { check_beatmaps_in_chat, check_beatmaps_in_db } = require('./check_beatmaps_in_db');
 
 const chunk_messages = load_messages('result.json');
 
@@ -93,16 +95,24 @@ if (!existsSync('tg_beatmaps_messages.json')){
 
 console.log('loaded sended_beatmaps from chat', sended_beatmaps.length);
 
+const check_beatmaps = async (chat_beatmaps) => {
+    const beatmaps_ids_chat = chat_beatmaps.map( x => Number(x.beatmapset_id) );
+    const sended_maps_db = (await MYSQL_GET_ALL('sended_map_db')).map( x => x['beatmapset_id'] );
+    console.log('loaded chat sended_beatmaps from db', sended_maps_db.length);
+
+    if(check_beatmaps_db_records){
+        await check_beatmaps_in_chat(beatmaps_ids_chat, sended_maps_db);
+        await check_beatmaps_in_db(beatmaps_ids_chat, sended_maps_db);
+    }
+}
+
 ( async () => {
-
     await prepareDB();
-
-    MYSQL
+    await check_beatmaps(sended_beatmaps);
 
     //await load();
     //(await get_messages([105258])).forEach( async (v) => {
-        /*console.log(await v.delete());
-        await v.delete()*/
+        //await v.delete()*/
     //});
 
 })();
