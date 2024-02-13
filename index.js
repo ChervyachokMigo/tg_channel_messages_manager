@@ -1,18 +1,22 @@
 
 const util = require('util');
 
-const { load_messages } = require('./chunks');
-const { get_beatmapset_id, checking_duplicates, } = require('./beatmaps');
-const get_message_id_file  = require('./get_message_id_file');
-const { inc_miss_if_error, miss_osz_save_results } = require('./miss_osz');
-const { load, get_messages, get_file } = require('./bot');
+const { load_messages } = require('./tools/chunks.js');
+const { get_beatmapset_id, checking_duplicates } = require('./modules/beatmaps.js');
+const get_message_id_file  = require('./tools/get_message_id_file.js');
+const { inc_miss_if_error, miss_osz_save_results } = require('./tools/miss_osz.js');
+const { load, get_messages, get_file } = require('./tg_bot.js');
 
-const { check_miss_osz, debug_show_single_messages, check_duplicates, check_beatmaps_db_records } = require('./config');
+const { check_miss_osz, debug_show_single_messages, check_duplicates, check_beatmaps_db_records, userdata_path, download_folder } = require('./userdata/config.js');
 const { writeFileSync, existsSync, readFileSync } = require('fs');
-const { prepareDB } = require('./DB/defines');
-const { MYSQL_GET_ALL } = require('./DB/base');
-const { check_beatmaps_in_chat, check_beatmaps_in_db } = require('./check_beatmaps_in_db');
-const check_saved_beatmaps_info = require('./check_saved_beatmaps_info.js');
+const { prepareDB } = require('./modules/DB/defines');
+const { MYSQL_GET_ALL } = require('./modules/DB/base');
+const { check_beatmaps_in_chat, check_beatmaps_in_db } = require('./tools/check_beatmaps_in_db.js');
+const check_saved_beatmaps_info = require('./tools/check_saved_beatmaps_info.js');
+const { folder_prepare } = require('./misc/tools.js');
+
+folder_prepare(userdata_path);
+folder_prepare(download_folder);
 
 const chunk_messages = load_messages('result.json');
 

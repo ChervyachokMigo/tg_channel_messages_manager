@@ -1,7 +1,7 @@
 const { createConnection } = require('mysql2/promise');
 const { Sequelize, DataTypes } = require('@sequelize/core');
 
-const { DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME_TG, DB_NAME_BEATMAPS } = require("../config.js");
+const { DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME_TG, DB_NAME_BEATMAPS } = require("../../userdata/config.js");
 
 const tg_mysql = new Sequelize( DB_NAME_TG, DB_USER, DB_PASSWORD, { 
     dialect: `mysql`,

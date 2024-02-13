@@ -2,8 +2,8 @@ const path = require('path');
 const { Api, TelegramClient } = require( "telegram");
 const { StringSession } = require("telegram/sessions");
 const input  = require("input");
-const { apiId, apiHash, chat_name, session_string, download_folder } = require("./config");
-const { folder_prepare } = require('./tools');
+const { apiId, apiHash, chat_name, session_string, download_folder } = require("../userdata/config");
+const { folder_prepare } = require('../misc/tools');
 
 const stringSession = new StringSession(session_string);
 
@@ -35,7 +35,6 @@ module.exports = {
     get_file: async (mes) => {
         const filename = mes.document.attributes.shift().fileName;
         const filepath = path.join(download_folder, filename);
-        folder_prepare(download_folder);
         await client.downloadMedia(mes, {outputFile: filepath});
     },
 

@@ -1,4 +1,4 @@
-const { beatmaps_md5 } = require("./DB/defines");
+const { beatmaps_md5 } = require("../modules/DB/defines");
 
 const beatmap_pattern = /https:\/\/osu\.ppy\.sh\/beatmapsets\/([0-9]+)(\#([A-Za-z]+)\/([0-9]+)?)*/i 
 

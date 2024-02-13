@@ -21,11 +21,12 @@ module.exports = {
     chat_name: '',
 
     download_folder: 'downloaded_beatmaps',
-    
+    userdata_path: 'userdata',
+
     debug_show_single_messages: true,
     check_miss_osz: true,
     debug_miss_osz: true,
     check_duplicates: true,
     debug_beatmapset_id: true,
-    
+    check_beatmaps_db_records: true,
 }

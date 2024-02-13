@@ -1,6 +1,7 @@
 const fs = require('fs');
+const path = require('path');
 
-const { debug_miss_osz } = require("./config");
+const { debug_miss_osz, userdata_path } = require("../userdata/config");
 
 let miss_osz = [];
 let miss_osz_count = 0;
@@ -16,8 +17,8 @@ module.exports = {
         }
     },
 
-    miss_osz_save_results: () => {
+    miss_osz_save_results: (filename = 'miss_osz.json') => {
         console.log('miss_osz_count', miss_osz_count);
-        fs.writeFileSync('miss_osz.json', JSON.stringify(miss_osz), { encoding: 'utf8' });
+        fs.writeFileSync(path.join(userdata_path, filename), JSON.stringify(miss_osz), { encoding: 'utf8' });
     }
 }

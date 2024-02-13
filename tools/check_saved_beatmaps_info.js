@@ -1,6 +1,6 @@
-const { get_md5_id } = require('./beatmaps');
-const { MYSQL_GET_ALL, MYSQL_SAVE } = require('./DB/base');
-const auth_osu = require('./osu_auth.js');
+const { get_md5_id } = require('../modules/beatmaps.js');
+const { MYSQL_GET_ALL, MYSQL_SAVE } = require('../modules/DB/base.js');
+const auth_osu = require('../modules/osu_auth.js');
 const { v2 } = require('osu-api-extended');
 const convert_ranked = require('./convert_ranked.js');
 
