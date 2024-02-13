@@ -106,9 +106,26 @@ const check_beatmaps = async (chat_beatmaps) => {
     }
 }
 
+const check_saved_beatmaps_info = async (chat_beatmaps) => {
+    const beatmaps_ids_chat = chat_beatmaps.map( x => Number(x.beatmapset_id) );
+
+    const beatmaps_ids = await MYSQL_GET_ALL('beatmap_id');
+    const beatmapset_ids = new Set(beatmaps_ids.map( x => x.beatmapset_id ));
+    console.log( 'loaded', beatmaps_ids.length, 'beatmaps_ids' );
+    console.log( 'founded', beatmapset_ids.size, 'beatmapset_ids' );
+
+    //filter maps missed in db table 'beatmap_id'
+    const missed_ids = beatmaps_ids_chat.filter( x => !beatmapset_ids.has(x) );
+    console.log( 'missed ids', missed_ids.length );
+
+    
+}
+
 ( async () => {
     await prepareDB();
     await check_beatmaps(sended_beatmaps);
+
+    await check_saved_beatmaps_info(sended_beatmaps);
 
     //await load();
     //(await get_messages([105258])).forEach( async (v) => {

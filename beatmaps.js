@@ -1,3 +1,4 @@
+const { beatmaps_md5 } = require("./DB/defines");
 
 const beatmap_pattern = /https:\/\/osu\.ppy\.sh\/beatmapsets\/([0-9]+)(\#([A-Za-z]+)\/([0-9]+)?)*/i 
 
@@ -22,5 +23,26 @@ module.exports = {
         } else {
             unique_beatmaps.add(beatmapset_id);
         }
+    },
+
+    get_md5_id: async (hash, returning = true) => {
+        if (typeof hash !== 'string' && hash.length !== 32){
+            return null;
+        }
+    
+        const result = await beatmaps_md5.findOrCreate({ 
+            where: { hash },
+            logging: false
+        });
+
+        if (returning){
+            return result[0].getDataValue('id');
+        }
+    
+        return null;
+    },
+
+    remove_beatmap: async (hash) => {
+        await beatmaps_md5.destroy({ where: {hash}, logging: false});
     }
 }
