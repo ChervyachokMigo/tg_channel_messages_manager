@@ -13,6 +13,7 @@
     "@sequelize/core": "^7.0.0-alpha.37",
     "input": "^1.0.1",
     "mysql2": "^3.9.1",
+    "osu-api-extended": "^2.8.3",
     "telegram": "^2.19.10"
   }
 }

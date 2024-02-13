@@ -2,16 +2,17 @@
 const util = require('util');
 
 const { load_messages } = require('./chunks');
-const { get_beatmapset_id, checking_duplicates } = require('./beatmaps');
+const { get_beatmapset_id, checking_duplicates, } = require('./beatmaps');
 const get_message_id_file  = require('./get_message_id_file');
 const { inc_miss_if_error, miss_osz_save_results } = require('./miss_osz');
-const { load, get_messages } = require('./bot');
+const { load, get_messages, get_file } = require('./bot');
 
 const { check_miss_osz, debug_show_single_messages, check_duplicates, check_beatmaps_db_records } = require('./config');
 const { writeFileSync, existsSync, readFileSync } = require('fs');
 const { prepareDB } = require('./DB/defines');
-const { MYSQL_GET_ALL, MYSQL_DELETE, MYSQL_SAVE } = require('./DB/base');
+const { MYSQL_GET_ALL } = require('./DB/base');
 const { check_beatmaps_in_chat, check_beatmaps_in_db } = require('./check_beatmaps_in_db');
+const check_saved_beatmaps_info = require('./check_saved_beatmaps_info.js');
 
 const chunk_messages = load_messages('result.json');
 
@@ -106,30 +107,16 @@ const check_beatmaps = async (chat_beatmaps) => {
     }
 }
 
-const check_saved_beatmaps_info = async (chat_beatmaps) => {
-    const beatmaps_ids_chat = chat_beatmaps.map( x => Number(x.beatmapset_id) );
-
-    const beatmaps_ids = await MYSQL_GET_ALL('beatmap_id');
-    const beatmapset_ids = new Set(beatmaps_ids.map( x => x.beatmapset_id ));
-    console.log( 'loaded', beatmaps_ids.length, 'beatmaps_ids' );
-    console.log( 'founded', beatmapset_ids.size, 'beatmapset_ids' );
-
-    //filter maps missed in db table 'beatmap_id'
-    const missed_ids = beatmaps_ids_chat.filter( x => !beatmapset_ids.has(x) );
-    console.log( 'missed ids', missed_ids.length );
-
-    
-}
-
 ( async () => {
     await prepareDB();
     await check_beatmaps(sended_beatmaps);
 
     await check_saved_beatmaps_info(sended_beatmaps);
 
-    //await load();
-    //(await get_messages([105258])).forEach( async (v) => {
-        //await v.delete()*/
-    //});
+    await load();
+    /*(await get_messages([105258])).forEach( async (v) => {
+        //await get_file(v);
+        //await v.delete()
+    });*/
 
 })();

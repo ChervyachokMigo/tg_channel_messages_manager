@@ -1,8 +1,9 @@
-
+const path = require('path');
 const { Api, TelegramClient } = require( "telegram");
 const { StringSession } = require("telegram/sessions");
 const input  = require("input");
-const { apiId, apiHash, chat_name, session_string } = require("./config");
+const { apiId, apiHash, chat_name, session_string, download_folder } = require("./config");
+const { folder_prepare } = require('./tools');
 
 const stringSession = new StringSession(session_string);
 
@@ -31,13 +32,11 @@ module.exports = {
         channel = await client.getEntity(chat);
     },
 
-    test: async () => {
-        //bot_1.getFile(5195401661983500073n.toString());
-    },
-
     get_file: async (mes) => {
         const filename = mes.document.attributes.shift().fileName;
-        await client.downloadMedia(mes, {outputFile: filename});
+        const filepath = path.join(download_folder, filename);
+        folder_prepare(download_folder);
+        await client.downloadMedia(mes, {outputFile: filepath});
     },
 
     get_messages: async (ids) => {

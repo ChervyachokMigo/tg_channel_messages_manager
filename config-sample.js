@@ -8,6 +8,9 @@ module.exports = {
     DB_NAME_TG: `tg_bot`,
     DB_NAME_BEATMAPS: 'osu_beatmaps',
 
+    login: '',
+    password: '',
+
     tg_token : '',
 
     session_string: '',
@@ -17,6 +20,8 @@ module.exports = {
 
     chat_name: '',
 
+    download_folder: 'downloaded_beatmaps',
+    
     debug_show_single_messages: true,
     check_miss_osz: true,
     debug_miss_osz: true,
