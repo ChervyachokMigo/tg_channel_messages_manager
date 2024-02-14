@@ -12,6 +12,7 @@ const parse_save_downloaded_beatmaps = require('./tools/parse_save_downloaded_be
 const find_beatmaps = require('./tools/find_beatmaps.js');
 const download_beatmaps = require('./tools/download_beatmaps.js');
 const check_existed_beatmaps_from_list = require('./tools/check_existed_beatmaps_from_list.js');
+const save_archived_file_id_messages = require('./tools/save_archived_file_id_messages.js');
 
 folder_prepare(userdata_path);
 folder_prepare(download_folder);
@@ -53,10 +54,11 @@ console.log('loaded sended_beatmaps from chat', sended_beatmaps.length);
         const not_exists_beatmaps = await check_existed_beatmaps_from_list(unique_results);
         console.log( 'found not exists beatmaps', not_exists_beatmaps.length );
 
+        await save_archived_file_id_messages(sended_beatmaps);
+
         if (not_exists_beatmaps.length > 0) {
             await download_beatmaps( not_exists_beatmaps.map( x => x.message_id_file ));
-        }
-        
+        }      
 
         /*  {
             md5: '020e385d66165929cb02ac6e20235c21',
