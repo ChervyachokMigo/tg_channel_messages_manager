@@ -32,8 +32,14 @@ module.exports = {
         channel = await client.getEntity(chat);
     },
 
-    get_file: async (mes) => {        
-        const filename = mes.document.attributes.shift().fileName;
+    get_file: async (mes) => {
+        if (!mes.document || !mes.document.attributes || !mes.document.attributes.length === 0){
+            console.log('mes', mes);
+            console.log('doc', mes.document);
+            return;
+        }
+        const attrs = mes.document.attributes.shift();
+        const filename = attrs.fileName;
         const filepath = path.join(download_folder, filename);
         if (existsSync(filepath)){
             console.log('file is exists, skipped ', filename );

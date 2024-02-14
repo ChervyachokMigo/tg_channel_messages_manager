@@ -42,8 +42,15 @@ console.log('loaded sended_beatmaps from chat', sended_beatmaps.length);
         console.log('db and chat is relevant');
 
         const results = await find_beatmaps( sended_beatmaps, { gamemode: 3 });
-
-        const not_exists_beatmaps = await check_existed_beatmaps_from_list(results);
+        const unique_results_set = new Set();
+        const unique_results = [];
+        for (let x of results) {
+            if (!unique_results_set.has(x.beatmapset_id)){
+                unique_results_set.add(x.beatmapset_id)
+                unique_results.push(x);
+            }
+        }
+        const not_exists_beatmaps = await check_existed_beatmaps_from_list(unique_results);
         console.log( 'found not exists beatmaps', not_exists_beatmaps.length );
 
         if (not_exists_beatmaps.length > 0) {
