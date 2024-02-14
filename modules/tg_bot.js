@@ -1,8 +1,9 @@
 const path = require('path');
-const { Api, TelegramClient } = require( "telegram");
+const { TelegramClient } = require( "telegram");
 const { StringSession } = require("telegram/sessions");
 const input  = require("input");
 const { apiId, apiHash, chat_name, session_string, download_folder } = require("../userdata/config");
+const { existsSync } = require('fs');
 
 const stringSession = new StringSession(session_string);
 
@@ -34,8 +35,13 @@ module.exports = {
     get_file: async (mes) => {        
         const filename = mes.document.attributes.shift().fileName;
         const filepath = path.join(download_folder, filename);
-        console.log('downloading file', filename, 'to', filepath);
-        await client.downloadMedia(mes, {outputFile: filepath});
+        if (existsSync(filepath)){
+            console.log('file is exists, skipped ', filename );
+            return;
+        } else {
+            console.log('downloading file', filename, 'to', filepath);
+            await client.downloadMedia(mes, {outputFile: filepath});
+        }
     },
 
     get_messages: async (ids) => {

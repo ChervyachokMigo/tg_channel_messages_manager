@@ -7,6 +7,7 @@ const { check_beatmaps } = require('./tools/check_beatmaps_in_db.js');
 const check_saved_beatmaps_info = require('./tools/check_saved_beatmaps_info.js');
 
 const { load, get_messages, get_file } = require('./modules/tg_bot.js');
+const extract_oszs = require('./tools/extract_oszs.js');
 
 folder_prepare(userdata_path);
 folder_prepare(download_folder);
@@ -35,6 +36,9 @@ console.log('loaded sended_beatmaps from chat', sended_beatmaps.length);
             }
 
             console.log('complete download missing files');
+
+            extract_oszs();
+
         }
     }
 
