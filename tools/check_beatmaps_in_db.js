@@ -9,7 +9,7 @@ module.exports = {
     
         for(let beatmapset_id of beatmaps_chat){
             if (!sended_db_set.has(beatmapset_id)){
-                console.log('add to db', beatmapset_id);
+                console.log('need add to db', beatmapset_id);
                 //await MYSQL_SAVE('sended_map_db', { beatmapset_id }, { beatmapset_id });
             }
         }
@@ -24,7 +24,7 @@ module.exports = {
     
         for(let beatmapset_id of beatmaps_db){
             if (!sended_chat.has(beatmapset_id)){
-                console.log('delete from db', beatmapset_id);
+                console.log('need delete from db', beatmapset_id);
                 //await MYSQL_DELETE('sended_map_db', { beatmapset_id });
             }
         }

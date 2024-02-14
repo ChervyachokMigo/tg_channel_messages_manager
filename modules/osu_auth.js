@@ -13,7 +13,7 @@ const login_osu_loop = async () => {
     access_token = await auth.login_lazer(login, password);
 
     if (typeof access_token?.access_token == 'undefined'){
-        log('no auth osu, trying again');
+        console.log('no auth osu, trying again');
         await login_osu_loop();
     } else {
         expires_in = new Date().getTime() + access_token.expires_in * 1000;

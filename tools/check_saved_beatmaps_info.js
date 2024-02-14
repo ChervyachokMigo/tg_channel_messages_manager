@@ -1,11 +1,11 @@
 const fs = require('fs');
-const { get_md5_id } = require('../modules/beatmaps.js');
-const { MYSQL_GET_ALL, MYSQL_SAVE } = require('../modules/DB/base.js');
+const { MYSQL_GET_ALL } = require('../modules/DB/base.js');
 const auth_osu = require('../modules/osu_auth.js');
 const { v2 } = require('osu-api-extended');
 const convert_ranked = require('./convert_ranked.js');
 const path = require('path');
 const { userdata_path } = require('../userdata/config.js');
+const save_beatmap_info = require('./save_beatmap_info.js');
 
 module.exports = async (chat_beatmaps) => {
     const beatmaps_ids_chat = chat_beatmaps.map(x => Number(x.beatmapset_id));
@@ -54,14 +54,12 @@ module.exports = async (chat_beatmaps) => {
                 }
 
                 for (let beatmap of beatmapset.beatmaps) {
-                    const beatmap_md5_id = await get_md5_id(beatmap.checksum);
-                    await MYSQL_SAVE('beatmap_info', { md5: beatmap_md5_id }, {
+                    await save_beatmap_info ({
+                        checksum: beatmap.checksum,
                         artist: beatmapset.artist,
                         title: beatmapset.title,
                         creator: beatmapset.creator,
-                        difficulty: beatmap.version
-                    });
-                    await MYSQL_SAVE('beatmap_id', { md5: beatmap_md5_id }, {
+                        difficulty: beatmap.version,
                         beatmap_id: beatmap.id,
                         beatmapset_id: beatmapset.id,
                         gamemode: beatmap.mode_int,

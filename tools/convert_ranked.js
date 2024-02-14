@@ -24,5 +24,6 @@ module.exports = (beatmap_ranked) => {
         //unknown
         default:
             return 0;
+        //return 1 //unsubmitted
     }
 };

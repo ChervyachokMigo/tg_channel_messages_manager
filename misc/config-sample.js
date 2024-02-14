@@ -21,6 +21,7 @@ module.exports = {
     chat_name: '',
 
     download_folder: 'downloaded_beatmaps',
+    extract_folder: 'extracted',
     userdata_path: 'userdata',
 
     debug_show_single_messages: true,

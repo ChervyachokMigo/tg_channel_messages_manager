@@ -13,7 +13,6 @@ const inputfile = path.join(userdata_path, 'result.json');
 const outputfile = path.join(userdata_path, 'tg_beatmaps_messages.json');
 
 module.exports = () => {
-    
     let sended_beatmaps = [];
 
     if (!existsSync(outputfile)){
@@ -46,7 +45,6 @@ module.exports = () => {
                         break;
                     }
                 }
-                
 
                 //надо скачать
 
@@ -90,7 +88,7 @@ module.exports = () => {
 
         sended_beatmaps.chunk_count = chunk_count;
 
-        writeFileSync(outputfile, JSON.stringify(beatmaps), 'utf8');
+        writeFileSync(outputfile, JSON.stringify(sended_beatmaps), 'utf8');
 
         if (check_miss_osz){
             miss_osz_save_results();
