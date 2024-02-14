@@ -1,7 +1,8 @@
 const { beatmaps_md5 } = require("../modules/DB/defines");
 const { debug_beatmapset_id } = require("../userdata/config");
 
-const beatmap_pattern = /https:\/\/osu\.ppy\.sh\/beatmapsets\/([0-9]+)(\#([A-Za-z]+)\/([0-9]+)?)*/i 
+// eslint-disable-next-line no-undef
+const beatmap_pattern = /https:\/\/osu\.ppy\.sh\/beatmapsets\/([0-9]+)(#([A-Za-z]+)\/([0-9]+)?)*/i 
 
 let unique_beatmaps = new Set();
 

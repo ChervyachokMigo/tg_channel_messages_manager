@@ -58,7 +58,7 @@ const osu_beatmap_pp = osu_beatmaps_mysql.define ('osu_beatmap_pp', {
     OD: {type: DataTypes.FLOAT,  defaultvalue: 0, allowNull: false},
 });
 
-const beatmap_id = osu_beatmaps_mysql.define ('beatmap_id', {
+const osu_beatmap_id = osu_beatmaps_mysql.define ('beatmap_id', {
     md5: {type: DataTypes.INTEGER,  defaultvalue: 0, allowNull: false, unique: true, primaryKey: true},
     beatmap_id: {type: DataTypes.INTEGER,  defaultvalue: 0, allowNull: false},
     beatmapset_id: {type: DataTypes.INTEGER,  defaultvalue: 0, allowNull: false},
@@ -80,18 +80,27 @@ const beatmap_star = osu_beatmaps_mysql.define ('beatmap_star', {
     lazer: {type: DataTypes.FLOAT,  defaultvalue: 0, allowNull: false},
 }, {noPrimaryKey: false});
 
+
+
+beatmaps_md5.hasOne(osu_beatmap_id, { foreignKey: 'md5', foreignKeyConstraints: false});
+beatmaps_md5.hasOne(beatmap_info, { foreignKey: 'md5',  foreignKeyConstraints: false});
+beatmaps_md5.hasOne(beatmap_star, { foreignKey: 'md5', foreignKeyConstraints: false});
+
+osu_beatmap_id.hasOne(beatmap_info, { foreignKey: 'md5',  foreignKeyConstraints: false});
+osu_beatmap_id.hasOne(beatmap_star, { foreignKey: 'md5', foreignKeyConstraints: false});
+
+beatmap_info.hasOne(beatmap_star, { foreignKey: 'md5', foreignKeyConstraints: false});
+
 beatmaps_md5.hasMany(osu_beatmap_pp, {foreignKey: 'md5',  foreignKeyConstraints: false});
-beatmap_id.hasMany(osu_beatmap_pp, {foreignKey: 'md5',  foreignKeyConstraints: false});
+osu_beatmap_id.hasMany(osu_beatmap_pp, {foreignKey: 'md5',  foreignKeyConstraints: false});
 beatmap_info.hasMany(osu_beatmap_pp, {foreignKey: 'md5',  foreignKeyConstraints: false});
 
-beatmaps_md5.hasOne(beatmap_id, {foreignKey: 'md5',  foreignKeyConstraints: false});
-beatmaps_md5.hasOne(beatmap_info, {foreignKey: 'md5',  foreignKeyConstraints: false});
-beatmaps_md5.hasOne(beatmap_star, {foreignKey: 'md5',  foreignKeyConstraints: false});
+
 
 const mysql_actions = [
     { names: 'beatmaps_md5', model: beatmaps_md5 },
     { names: 'osu_beatmap_pp', model: osu_beatmap_pp },
-    { names: 'beatmap_id', model: beatmap_id },
+    { names: 'beatmap_id', model: osu_beatmap_id },
     { names: 'beatmap_info', model: beatmap_info },
     { names: 'beatmap_star', model: beatmap_star },
     
@@ -112,7 +121,7 @@ module.exports = {
     map_too_long,
 
     beatmaps_md5,
-    beatmap_id,
+    osu_beatmap_id,
     beatmap_info,
     osu_beatmap_pp,
     beatmap_star,
