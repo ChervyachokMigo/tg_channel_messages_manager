@@ -41,7 +41,7 @@ console.log('loaded sended_beatmaps from chat', sended_beatmaps.length);
 
         console.log('db and chat is relevant');
 
-        const results = await find_beatmaps( sended_beatmaps, { gamemode: 0 });
+        const results = await find_beatmaps( sended_beatmaps, { gamemode: 3 });
 
         const not_exists_beatmaps = await check_existed_beatmaps_from_list(results);
         console.log( 'found not exists beatmaps', not_exists_beatmaps.length );
