@@ -1,6 +1,5 @@
-const { MYSQL_GET_ALL } = require("../modules/DB/base");
-const { beatmaps_md5, osu_beatmap_id, beatmap_info } = require("../modules/DB/defines");
 
+const { beatmaps_md5, osu_beatmap_id, beatmap_info } = require("../modules/DB/defines");
 
 const find_beatmap = async ({ 
     beatmap_md5 = null, 

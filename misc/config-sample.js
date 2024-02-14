@@ -24,6 +24,8 @@ module.exports = {
     extract_folder: 'extracted',
     userdata_path: 'userdata',
 
+    osu_db_path: 'C:\\osu!\\osu!.db',
+
     debug_show_single_messages: true,
     check_miss_osz: true,
     debug_miss_osz: true,
