@@ -38,8 +38,8 @@ module.exports = {
         console.log('loaded chat sended_beatmaps from db', sended_maps_db.length);
     
         if(check_beatmaps_db_records){
-            await exports.check_beatmaps_in_chat(beatmaps_ids_chat, sended_maps_db);
-            await exports.check_beatmaps_in_db(beatmaps_ids_chat, sended_maps_db);
+            await module.exports.check_beatmaps_in_chat(beatmaps_ids_chat, sended_maps_db);
+            await module.exports.check_beatmaps_in_db(beatmaps_ids_chat, sended_maps_db);
         }
     }
 }

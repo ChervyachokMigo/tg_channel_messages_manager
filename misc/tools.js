@@ -1,3 +1,5 @@
+const { existsSync, mkdirSync } = require('fs');
+
 module.exports = {
     folder_prepare: (path) =>{
         try{

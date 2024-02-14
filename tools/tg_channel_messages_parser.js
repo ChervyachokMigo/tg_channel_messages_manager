@@ -76,7 +76,13 @@ module.exports = () => {
                 }
             }
 
-            sended_beatmaps.push({info_message, media_1, media_2, message_id_file: id, beatmapset_id});
+            sended_beatmaps.push({
+                info_message, 
+                media_1, 
+                media_2, 
+                message_id_file: id, 
+                beatmapset_id
+            });
             
         }
 

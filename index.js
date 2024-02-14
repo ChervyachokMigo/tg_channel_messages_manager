@@ -17,12 +17,25 @@ console.log('loaded sended_beatmaps from chat', sended_beatmaps.length);
 ( async () => {
     await prepareDB();
     await check_beatmaps(sended_beatmaps);
-    await check_saved_beatmaps_info(sended_beatmaps);
+    const miss_info_beatmapsets = new Set(await check_saved_beatmaps_info(sended_beatmaps));
 
     await load();
-    /*(await get_messages([105258])).forEach( async (v) => {
-        //await get_file(v);
-        //await v.delete()
-    });*/
+
+    if (miss_info_beatmapsets.size > 0){
+
+        const file_message_ids = sended_beatmaps.filter( x => miss_info_beatmapsets.has( Number(x.beatmapset_id)  ) )
+            .map( x => x.message_id_file );
+
+        if (file_message_ids.length > 0){
+            console.log('trying to download missing files');
+
+            const messages = await get_messages(file_message_ids);
+            for(let message of messages) {
+                await get_file(message);
+            }
+
+            console.log('complete download missing files');
+        }
+    }
 
 })();
