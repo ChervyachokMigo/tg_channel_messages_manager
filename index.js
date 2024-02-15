@@ -39,6 +39,8 @@ const osu_db_results = osu_db_load(osu_db_path, beatmap_props);
 ( async () => {
     await prepareDB();
 
+    await tg_bot.load();
+
     const action = argv.shift();
 
     if (action === 'download') {
@@ -86,15 +88,13 @@ const osu_db_results = osu_db_load(osu_db_path, beatmap_props);
     
     //if (process.argv.slice(2))
 
-
-
     await save_messages_ids_in_db( channel_beatmaps );
 
     await sync_db_records_of_chat_beatmaps(channel_beatmaps);
 
     //check missed beatmapsets info as artist, title, gamemode, ranked etc
     const miss_info_beatmapsets = new Set(await check_saved_beatmaps_info(channel_beatmaps));
-    await tg_bot.load();
+
     if (miss_info_beatmapsets.size > 0){
 
         //missed info beatmaps can download in tg channel, get messages ids of beatmaps
