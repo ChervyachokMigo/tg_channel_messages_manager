@@ -31,7 +31,7 @@ module.exports = async ( beatmaps, continue_page = 0) => {
                 break;
             }
 
-            console.log(`[${Number(chunk.inc) + Number(i)}/${chunk.length}]`);
+            console.log(`[${chunk.inc}/${chunk.length}, ${i}/${messages.length}]`);
 
             try {
                 await get_file(messages[i]);
