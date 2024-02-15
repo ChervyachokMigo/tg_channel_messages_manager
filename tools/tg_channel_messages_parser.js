@@ -15,6 +15,10 @@ const outputfile = path.join(userdata_path, 'tg_beatmaps_messages.json');
 module.exports = () => {
     let sended_beatmaps = [];
 
+    if (!existsSync(inputfile) && !existsSync(outputfile)){
+        throw new Error('not exists telegram channel exported json and parsed messages\n');
+    }
+
     if (!existsSync(outputfile)){
 
         let chunk_count = [0];
@@ -27,8 +31,8 @@ module.exports = () => {
             const info_message = chunk.shift();
             const media_1 = chunk.shift();
             const media_2 = chunk.shift();
-            const id = get_file_message_id(media_1, media_2);
-
+            const file_message_id = get_file_message_id(media_1, media_2);
+            
             if (chunk_size === 1){
 
                 if (debug_show_single_messages){
@@ -40,8 +44,8 @@ module.exports = () => {
             } else if (chunk_size === 2) {
 
                 if (check_miss_osz){
-                    if (id.error){
-                        inc_miss_if_error(id, info_message);
+                    if (file_message_id.error){
+                        inc_miss_if_error(file_message_id, info_message);
                         break;
                     }
                 }
@@ -50,8 +54,8 @@ module.exports = () => {
 
             } else if (chunk_size === 3) {
 
-                if (id.error){
-                    console.log(id.error)
+                if (file_message_id.error){
+                    console.log(file_message_id.error)
                     break;
                 }
                 
@@ -78,7 +82,7 @@ module.exports = () => {
                 info_message, 
                 media_1, 
                 media_2, 
-                message_id: id, 
+                message_id: file_message_id, 
                 beatmapset_id
             });
             

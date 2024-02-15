@@ -16,11 +16,11 @@ module.exports = async ( beatmaps, continue_page = 0) => {
 
     const chunks = split_arr(files_ids, chunk_size);
 
-    set_inc(chunks.id, continue_page);
+    set_inc(chunks.arr_id, continue_page);
 
     /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "[k]" }]*/
     for (let k in chunks.chunks){
-        const chunk = await get_next_chunk( chunks.id, time_delay );
+        const chunk = await get_next_chunk( chunks.arr_id, time_delay );
         const messages = await get_messages( chunk.chunk.filter(x => x) );
 
         if (messages.length !== chunk_size) 
