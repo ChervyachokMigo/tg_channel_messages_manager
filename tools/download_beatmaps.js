@@ -1,8 +1,10 @@
-const { split_arr, get_next_chunk } = require("delayed_chunks");
+const { split_arr, get_next_chunk, set_inc } = require("delayed_chunks");
 const { get_messages, get_file } = require("../modules/tg_bot");
-const { set_inc } = require("delayed_chunks/tools");
 
-module.exports = async (files_ids = []) => {
+const chunk_size = 10;
+const time_delay = 1000;
+
+module.exports = async (files_ids = [], continue_page = 0) => {
     if (!files_ids || files_ids.length == 0){
         console.error('trying to download empty list of files');
         return null;
@@ -10,34 +12,31 @@ module.exports = async (files_ids = []) => {
 
     console.log('downloading beatmaps');
 
-    const chunks = split_arr(files_ids, 10);
-    const time_delay = 1000;
+    const chunks = split_arr(files_ids, chunk_size);
 
-    set_inc(chunks.id, 51);
-
+    set_inc(chunks.id, continue_page);
+    
+    /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "[k]" }]*/
     for (let k in chunks.chunks){
         const chunk = await get_next_chunk( chunks.id, time_delay );
-        console.log(chunk.chunk);
         const messages = await get_messages( chunk.chunk.filter(x => x) );
-        console.log(messages)
+
+        if (messages.length !== chunk_size) 
+            console.log('warning! miss message_id from list', chunk.chunk );
+
         for (let i in messages) {
             if (i === 'total'){
                 break;
             }
 
-            console.log(`[${chunk.inc}/${chunk.length}, ${i}/${messages.length}]`);
+            console.log(`[${Number(chunk.inc) + Number(i)}/${chunk.length}]`);
 
             try {
                 await get_file(messages[i]);
             } catch (e) {
                 console.error(e);
-                console.error(id)
+                console.error(chunk.inc)
             }
-
-            /* if (message === undefined || message.SUBCLASS_OF_ID === undefined) {
-                                            ^
-
-            TypeError: Cannot read properties of null (reading 'SUBCLASS_OF_ID')*/
         }
     }
 

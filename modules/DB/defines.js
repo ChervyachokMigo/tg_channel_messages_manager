@@ -80,6 +80,12 @@ const beatmap_star = osu_beatmaps_mysql.define ('beatmap_star', {
     lazer: {type: DataTypes.FLOAT,  defaultvalue: 0, allowNull: false},
 }, {noPrimaryKey: false});
 
+const tg_file = osu_beatmaps_mysql.define ('tg_file', {
+    beatmapset_id: {type: DataTypes.INTEGER,  defaultvalue: -1, allowNull: false, unique: true, primaryKey: true},
+    message_id: {type: DataTypes.INTEGER, defaultvalue: null, allowNull: true},
+    name: {type: DataTypes.STRING, defaultvalue: null, allowNull: true},
+}, {noPrimaryKey: false});
+
 
 
 beatmaps_md5.hasOne(osu_beatmap_id, { foreignKey: 'md5', foreignKeyConstraints: false});
