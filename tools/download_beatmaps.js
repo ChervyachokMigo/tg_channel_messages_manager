@@ -19,12 +19,12 @@ module.exports = async ( beatmaps, continue_page = 0) => {
     set_inc(chunks.arr_id, continue_page);
 
     /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "[k]" }]*/
-    for (let k in chunks.chunks){
+    for (let k in chunks.data){
         const chunk = await get_next_chunk( chunks.arr_id, time_delay );
-        const messages = await get_messages( chunk.chunk.filter(x => x) );
+        const messages = await get_messages( chunk.data.filter(x => x) );
 
         if (messages.length !== chunk_size) 
-            console.log('warning! miss message_id from list', chunk.chunk );
+            console.log('warning! miss message_id from list', chunk.data );
 
         for (let i in messages) {
             if (i === 'total'){
