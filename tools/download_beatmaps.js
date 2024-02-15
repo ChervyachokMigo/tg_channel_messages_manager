@@ -21,9 +21,10 @@ module.exports = async ( beatmaps, continue_page = 0) => {
     /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "[k]" }]*/
     for (let k in chunks.data){
         const chunk = await get_next_chunk( chunks.arr_id, time_delay );
-        const messages = await get_messages( chunk.data.filter(x => x) );
+        //                                              filter null and undefined
+        const messages = await get_messages( chunk.data.filter( x => x ));
 
-        if (messages.length !== chunk_size) 
+        if (messages.length !== chunk.data.length ) 
             console.log('warning! miss message_id from list', chunk.data );
 
         for (let i in messages) {
@@ -31,7 +32,7 @@ module.exports = async ( beatmaps, continue_page = 0) => {
                 break;
             }
 
-            console.log(`[${chunk.inc}/${chunk.length}, ${i}/${messages.length}]`);
+            console.log(`[${Number(chunk.inc)+1}/${chunk.length}, ${Number(i) + 1}/${messages.length}]`);
 
             try {
                 await get_file(messages[i]);

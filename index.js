@@ -16,6 +16,9 @@ const { osu_db_load, beatmap_property } = require('osu-tools');
 
 const save_messages_ids_in_db = require('./tools/save_messages_ids_in_db.js');
 
+// eslint-disable-next-line no-undef
+const argv = process.argv.slice(2);
+
 folder_prepare(userdata_path);
 folder_prepare(download_folder);
 
@@ -35,6 +38,55 @@ const osu_db_results = osu_db_load(osu_db_path, beatmap_props);
 
 ( async () => {
     await prepareDB();
+
+    const action = argv.shift();
+
+    if (action === 'download') {
+        const allowed_params = ['beatmap_md5', 'beatmap_id', 'beatmapset_id', 'gamemode', 'ranked'];
+
+        let params = {};
+
+        for (let arg of argv) {
+            if (!arg) break;
+
+            const arg_splitted = arg.split('=');
+            console.log(arg_splitted)
+
+            if (arg_splitted.length === 2){
+                if (allowed_params.indexOf(arg_splitted[0]) === -1){
+                    console.error('unallowed parameter', arg, 'check list:', allowed_params.join(', '));
+                    continue;
+                }
+
+                params = {...params, [arg_splitted[0]]: arg_splitted[1]};
+                console.log('add search parameter', arg );
+
+            } else {
+
+                console.error('unknown parameter', arg, 'use the "=" symbol');
+
+            }
+        }
+
+        if (Object.keys(params).length === 0) {
+            console.log('warning! no download parameters, will download beatmaps with default parameters gamemode=0, ranked=4');
+        }
+
+        //search beatmaps and download them
+        const tg_searching_results = await find_beatmaps( channel_beatmaps, params );
+        const not_exists_beatmaps = await check_existed_beatmaps_from_list(tg_searching_results , osu_db_results);
+        console.log( 'found not exists beatmaps', not_exists_beatmaps.length );
+        if (not_exists_beatmaps.length > 0) {
+            await download_beatmaps( not_exists_beatmaps );
+        }
+
+        console.log('download complete');
+        return;
+    }
+    
+    //if (process.argv.slice(2))
+
+
 
     await save_messages_ids_in_db( channel_beatmaps );
 
@@ -58,18 +110,6 @@ const osu_db_results = osu_db_load(osu_db_path, beatmap_props);
 
     } else {
         console.log('db and chat is relevant');
-
-        
-
-        /*
-        //search beatmaps and download them
-        const tg_searching_results = await find_beatmaps( channel_beatmaps, { gamemode: 3 });
-        const not_exists_beatmaps = await check_existed_beatmaps_from_list(tg_searching_results , osu_db_results);
-        console.log( 'found not exists beatmaps', not_exists_beatmaps.length );
-        if (not_exists_beatmaps.length > 0) {
-            await download_beatmaps( not_exists_beatmaps, 200 );
-        } */
-
     }
 
 })();
