@@ -33,7 +33,7 @@ module.exports = {
     },
 
     check_beatmaps: async (chat_beatmaps) => {
-        const beatmaps_ids_chat = chat_beatmaps.map( x => Number( x.beatmapset_id ));
+        const beatmaps_ids_chat = chat_beatmaps.map( x => x.beatmapset_id );
         const sended_maps_db = (await MYSQL_GET_ALL('sended_map_db'))
             .map( x => x.beatmapset_id );
             

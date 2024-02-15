@@ -8,15 +8,16 @@ const { userdata_path } = require('../userdata/config.js');
 const save_beatmap_info = require('./save_beatmap_info.js');
 
 module.exports = async (chat_beatmaps) => {
-    const beatmaps_ids_chat = chat_beatmaps.map(x => Number(x.beatmapset_id));
+    const beatmaps_ids_chat = chat_beatmaps.map( x => x.beatmapset_id );
 
     const beatmaps_ids = await MYSQL_GET_ALL('beatmap_id');
-    const beatmapset_ids = new Set(beatmaps_ids.map(x => x.beatmapset_id));
+    const beatmapset_ids = new Set( beatmaps_ids.map( x => x.beatmapset_id ));
+
     console.log('loaded', beatmaps_ids.length, 'beatmaps_ids');
     console.log('founded', beatmapset_ids.size, 'beatmapset_ids');
 
     //filter maps missed in db table 'beatmap_id'
-    const missed_ids = beatmaps_ids_chat.filter(x => !beatmapset_ids.has(x));
+    const missed_ids = beatmaps_ids_chat.filter( x => !beatmapset_ids.has(x) );
     console.log('missed ids', missed_ids.length);
 
     await auth_osu();
@@ -29,7 +30,7 @@ module.exports = async (chat_beatmaps) => {
         let error_beatmaps_ids = [];
 
         const result_errors_path = path.join(userdata_path, 'not_existed_info_beatmaps.json');
- 
+
         if (fs.existsSync(result_errors_path)){
             result_errors_ids = JSON.parse(fs.readFileSync(result_errors_path, 'utf8')).map(x => x.id);
         }

@@ -4,18 +4,20 @@ const { get_messages, get_file } = require("../modules/tg_bot");
 const chunk_size = 10;
 const time_delay = 1000;
 
-module.exports = async (files_ids = [], continue_page = 0) => {
-    if (!files_ids || files_ids.length == 0){
+module.exports = async ( beatmaps, continue_page = 0) => {
+    if (!beatmaps || beatmaps.length == 0){
         console.error('trying to download empty list of files');
         return null;
     }
 
-    console.log('downloading beatmaps');
+    const files_ids = Array.from( new Set( beatmaps.map( x => x.message_id )));
+
+    console.log('downloading beatmap sets', files_ids.length);
 
     const chunks = split_arr(files_ids, chunk_size);
 
     set_inc(chunks.id, continue_page);
-    
+
     /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "[k]" }]*/
     for (let k in chunks.chunks){
         const chunk = await get_next_chunk( chunks.id, time_delay );

@@ -4,7 +4,7 @@ const util = require('util');
 
 const { load_messages } = require("./chunks");
 const { get_beatmapset_id, checking_duplicates } = require('../modules/beatmaps.js');
-const get_message_id_file  = require('./get_message_id_file.js');
+const get_file_message_id  = require('./get_file_message_id.js');
 const { inc_miss_if_error, miss_osz_save_results } = require('./miss_osz.js');
 
 const { check_miss_osz, debug_show_single_messages, check_duplicates, userdata_path } = require('../userdata/config.js');
@@ -27,7 +27,7 @@ module.exports = () => {
             const info_message = chunk.shift();
             const media_1 = chunk.shift();
             const media_2 = chunk.shift();
-            const id = get_message_id_file(media_1, media_2);
+            const id = get_file_message_id(media_1, media_2);
 
             if (chunk_size === 1){
 
@@ -78,7 +78,7 @@ module.exports = () => {
                 info_message, 
                 media_1, 
                 media_2, 
-                message_id_file: id, 
+                message_id: id, 
                 beatmapset_id
             });
             

@@ -82,11 +82,8 @@ const beatmap_star = osu_beatmaps_mysql.define ('beatmap_star', {
 
 const tg_file = osu_beatmaps_mysql.define ('tg_file', {
     beatmapset_id: {type: DataTypes.INTEGER,  defaultvalue: -1, allowNull: false, unique: true, primaryKey: true},
-    message_id: {type: DataTypes.INTEGER, defaultvalue: null, allowNull: true},
-    name: {type: DataTypes.STRING, defaultvalue: null, allowNull: true},
+    message_id: {type: DataTypes.INTEGER, defaultvalue: null, allowNull: true}
 }, {noPrimaryKey: false});
-
-
 
 beatmaps_md5.hasOne(osu_beatmap_id, { foreignKey: 'md5', foreignKeyConstraints: false});
 beatmaps_md5.hasOne(beatmap_info, { foreignKey: 'md5',  foreignKeyConstraints: false});
@@ -101,7 +98,7 @@ beatmaps_md5.hasMany(osu_beatmap_pp, {foreignKey: 'md5',  foreignKeyConstraints:
 osu_beatmap_id.hasMany(osu_beatmap_pp, {foreignKey: 'md5',  foreignKeyConstraints: false});
 beatmap_info.hasMany(osu_beatmap_pp, {foreignKey: 'md5',  foreignKeyConstraints: false});
 
-
+tg_file.hasMany(osu_beatmap_id, {foreignKey: 'beatmapset_id',  foreignKeyConstraints: false});
 
 const mysql_actions = [
     { names: 'beatmaps_md5', model: beatmaps_md5 },
@@ -109,6 +106,8 @@ const mysql_actions = [
     { names: 'beatmap_id', model: osu_beatmap_id },
     { names: 'beatmap_info', model: beatmap_info },
     { names: 'beatmap_star', model: beatmap_star },
+    
+    { names: 'tg_file', model: tg_file },
     
     { names: 'sended_map_db', model: sended_map_db },
     { names: 'map_to_download_db', model: map_to_download_db },
@@ -125,6 +124,8 @@ module.exports = {
     map_to_download_db,
     map_not_found,
     map_too_long,
+
+    tg_file,
 
     beatmaps_md5,
     osu_beatmap_id,

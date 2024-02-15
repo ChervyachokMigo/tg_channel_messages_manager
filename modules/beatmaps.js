@@ -9,11 +9,11 @@ let unique_beatmaps = new Set();
 module.exports = {
     get_beatmapset_id: (info_message) => {
         const res = info_message.text_entities.map( x => x.text ).join(' ').match(beatmap_pattern);
-        if (res && res.length>1){
-            return res[1];
+        if (res && res.length > 1 ){
+            return isNaN(Number(res[1])) ? null : Number(res[1]);
         } else {
             if (debug_beatmapset_id) {
-                console.log(info_message.text_entities.map( x => x.text ).join(' ').match(beatmap_pattern))
+                console.log(res)
             }
             return null;
         }

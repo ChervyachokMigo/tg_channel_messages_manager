@@ -1,4 +1,4 @@
-const { userdata_path, download_folder } = require('./userdata/config.js');
+const { userdata_path, download_folder, osu_db_path } = require('./userdata/config.js');
 
 const { folder_prepare } = require('./misc/tools.js');
 const tg_channel_messages_parser = require('./tools/tg_channel_messages_parser.js');
@@ -12,7 +12,8 @@ const parse_save_downloaded_beatmaps = require('./tools/parse_save_downloaded_be
 const find_beatmaps = require('./tools/find_beatmaps.js');
 const download_beatmaps = require('./tools/download_beatmaps.js');
 const check_existed_beatmaps_from_list = require('./tools/check_existed_beatmaps_from_list.js');
-const save_archived_file_id_messages = require('./tools/save_archived_file_id_messages.js');
+//const save_archived_file_id_messages = require('./tools/save_archived_file_id_messages.js');
+const { osu_db_load, beatmap_property } = require('osu-tools');
 
 folder_prepare(userdata_path);
 folder_prepare(download_folder);
@@ -22,14 +23,24 @@ console.log('loaded sended_beatmaps from chat', sended_beatmaps.length);
 
 ( async () => {
     await prepareDB();
+    const beatmap_props = [
+        beatmap_property.beatmap_md5,
+        beatmap_property.gamemode,
+        beatmap_property.beatmap_id,
+        beatmap_property.beatmapset_id,
+        beatmap_property.ranked_status
+    ];
+
+    const osu_db_results = osu_db_load(osu_db_path, beatmap_props);
+
     await check_beatmaps(sended_beatmaps);
     const miss_info_beatmapsets = new Set(await check_saved_beatmaps_info(sended_beatmaps));
 
     await load();
 
     if (miss_info_beatmapsets.size > 0){
-        const file_message_ids = sended_beatmaps.filter( x => miss_info_beatmapsets.has( Number(x.beatmapset_id)  ) )
-            .map( x => x.message_id_file );
+        const file_message_ids = sended_beatmaps.filter( x => miss_info_beatmapsets.has( x.beatmapset_id ))
+            .map( x => x.message_id );
 
         if (file_message_ids.length > 0){
             //download missing files
@@ -42,22 +53,18 @@ console.log('loaded sended_beatmaps from chat', sended_beatmaps.length);
 
         console.log('db and chat is relevant');
 
-        const results = await find_beatmaps( sended_beatmaps, { gamemode: 3 });
-        const unique_results_set = new Set();
-        const unique_results = [];
-        for (let x of results) {
-            if (!unique_results_set.has(x.beatmapset_id)){
-                unique_results_set.add(x.beatmapset_id)
-                unique_results.push(x);
-            }
-        }
-        const not_exists_beatmaps = await check_existed_beatmaps_from_list(unique_results);
+        const tg_searching_results = await find_beatmaps( sended_beatmaps, { gamemode: 3 });
+
+        /*const unique_results = get_unique_beatmapset_id_list(results);
+        console.log(unique_results)*/
+
+        const not_exists_beatmaps = await check_existed_beatmaps_from_list(tg_searching_results , osu_db_results);
         console.log( 'found not exists beatmaps', not_exists_beatmaps.length );
 
-        await save_archived_file_id_messages(sended_beatmaps);
+        //await save_archived_file_id_messages(sended_beatmaps);
 
         if (not_exists_beatmaps.length > 0) {
-            await download_beatmaps( not_exists_beatmaps.map( x => x.message_id_file ));
+            await download_beatmaps( not_exists_beatmaps, 200 );
         }      
 
         /*  {
@@ -71,7 +78,7 @@ console.log('loaded sended_beatmaps from chat', sended_beatmaps.length);
             title: 'ANiMA',
             creator: 'Kuo Kyoka',
             difficulty: '7K Lv.5',
-            message_id_file: 41547
+            message_id: 41547
         },*/
 
 
