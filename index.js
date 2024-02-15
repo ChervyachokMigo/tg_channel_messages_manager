@@ -36,6 +36,11 @@ console.log('loaded channel_beatmaps from chat', channel_beatmaps.length);
 console.log('loading osu.db');
 const osu_db_results = osu_db_load(osu_db_path, beatmap_props);
 
+//добавить проверку каких карт нет в телеге
+//добавить проверку какие карты в телеге загружены и какие сохранены в базе что загружены
+//скопировать проверку md5 стока
+//веб интерфейс для загрузки карт*
+
 ( async () => {
     await prepareDB();
 

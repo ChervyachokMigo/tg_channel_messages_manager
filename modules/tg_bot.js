@@ -25,7 +25,7 @@ module.exports = {
             onError: (err) => console.log(err),
         });
         console.log("You should now be connected.");
-        console.log(client.session.save());
+        console.log( 'Session code: ' + client.session.save().slice(0,16) + '...' );
         const dialogs = await client.getDialogs();
         const chat = dialogs.find( v => v.name === chat_name );
     
