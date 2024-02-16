@@ -12,6 +12,7 @@ const { userdata_path, osu_md5_storage, osu_path, md5_download_print_progress,
 
 const songs_path = path.join(osu_path, 'Songs');
 const beatmaps_md5_db = path.join(userdata_path, 'beatmaps_md5_db.json');
+const missing_beatmaps_info_path = path.join( userdata_path, 'missing_beatmaps_info' );
 
 const blocked_files = [
     '7618a9c8a083537383bb76d641762159',
@@ -72,13 +73,13 @@ const download_beatmap_content = async ({ beatmap_id, md5 }, output_path, is_md5
                 if (is_md5_check && downloaded_md5 === md5 || !is_md5_check){
                     res({ data: response.data });
                 } else {
-                    res({ error: `[${md5}] > beatmap md5 not valid` });
+                    res({ error: 'beatmap md5 not valid' });
                 }
             } else {
-                res({ error: `[${md5}] > no response from bancho` });
+                res({ error: 'no response from bancho' });
             }
         }).catch( err => {
-            res({ error: `[${md5}] > ${err.toString()}` });
+            res({ error: err.toString() });
         });
     });
 
@@ -109,9 +110,9 @@ const download_by_md5_list = async ( maps ) => {
     let i = 0;
 
     for (let md5 of maps){
-        const { beatmap_id } = await get_beatmap_id({ md5 });
+        const md5_res = await get_beatmap_id({ md5 });
 
-        if (beatmap_id) {
+        if (md5_res && md5_res.beatmap_id) {
             if (md5_download_print_progress){
                 if (i % part === 0 || i === 0) {
                     console.log( 'downloading missed md5:', (i/maps.length*100).toFixed(1), '%', `(${i}/${maps.length})` );
@@ -119,17 +120,22 @@ const download_by_md5_list = async ( maps ) => {
                 i = i + 1;
             }
 
-            const result = await download_beatmap_content({ beatmap_id, md5 }, osu_md5_storage );
+            const result = await download_beatmap_content({ beatmap_id: md5_res.beatmap_id, md5 }, osu_md5_storage );
 
             //saved new osu file
             if (result.data) {
                 writeFileSync(path.join(osu_md5_storage, `${md5}.osu`), result.data, {encoding: 'utf8'});
             } else {
                 errors.push({ md5, error: result.error });
-                console.error(`md5_storage > error: ${result.error}`);
+                console.error(`md5_storage > error: [${md5}] > ${result.error}`);
             }
+        } else {
+            errors.push({ md5, error: 'missing beatmap_id' });
+            console.error(`md5_storage > error: [${md5}] > missing beatmap_id`);
         }
     }
+
+    errors = errors.map( e => { return {...e, count: 1 }});
 
     return errors;
 }
@@ -189,16 +195,24 @@ module.exports = {
 
         console.log('md5_storage have', missed_files.length, 'missed files');
 
-        
-        await download_by_md5_list (missed_files)
+        const errors = await download_by_md5_list (missed_files);
 
+        //save errors
+        const missing_beatmaps_info = existsSync( missing_beatmaps_info_path ) ? JSON.parse(readFileSync( missing_beatmaps_info_path, 'utf8' )) : [];
+        const missing_beatmaps_md5_set = new Set( missing_beatmaps_info.map( x => x.md5 ) );
+        const new_errors = errors.filter( x => !missing_beatmaps_md5_set.has( x.md5 ) );
+        const old_errors = errors.filter( x => missing_beatmaps_md5_set.has( x.md5 ) );
+        old_errors.forEach( x => x.count = x.count + 1 );
+        const errors_joined = JSON.stringify([...old_errors, ...new_errors ]);
+        writeFileSync( missing_beatmaps_info_path, errors_joined, 'utf8' );
+        console.log(`new ${new_errors.length} of ${errors_joined.length} errors saved`);
     },
 
     validate_storage: () => {
         console.log('md5_storage > validating');        
         const md5_files = readdirSync( osu_md5_storage );
         console.log('md5 storage have', md5_files.length, 'beatmaps');
-  
+
         const part = Math.trunc(md5_files.length / (1000 / print_progress_frequency) );
 
         let failed = []
