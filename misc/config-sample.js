@@ -27,6 +27,8 @@ module.exports = {
     osu_path: 'C:\\osu!',
     osu_md5_storage: 'C:\\osu_md5_storage',
 
+    forever_overwrite_md5_db: true,
+
     debug_show_single_messages: true,
     check_miss_osz: true,
     debug_miss_osz: true,

@@ -55,7 +55,7 @@ const make_beatmaps_db = () => {
 
 const download_beatmap_content = async ({ beatmap_id, md5 }, output_path, is_md5_check = true) => {
     if (!output_path){
-        throw new Error('> download_beatmap_content > set beatmap output_path\n');
+        throw new Error('download_beatmap_content > set beatmap output_path\n');
     }
 
     const url = `https://osu.ppy.sh/osu/${beatmap_id}`;
@@ -99,6 +99,38 @@ const get_beatmap_id = async ({ md5 }) => {
     });
 }
 
+const download_by_md5_list = async ( maps ) => {
+    const part = Math.trunc(maps.length / 250);
+    let results = [];
+    let i = 0;
+
+    for (let md5 of maps){
+        const { beatmap_id } = await get_beatmap_id({ md5 });
+
+        if (beatmap_id) {
+            if (i % part === 0 || i === 0) {
+                console.log( 'downloading missed md5:', (i/maps.length*100).toFixed(1), '%' )
+            }
+            i = i + 1;
+
+            const result = await download_beatmap_content({ beatmap_id, md5 }, osu_md5_storage );
+
+            if (result.data) {
+                results.push({md5, data: result.data});
+                writeFileSync(path.join(osu_md5_storage, `${md5}.osu`), result.data, {encoding: 'utf8'});
+                //console.log(`md5_storage > saved new ${md5}.osu > ${result.data.length} bytes`);
+            } else {
+                results.push({md5, error: result.error});
+                console.error(`md5_storage > error with ${md5} > ${result.error}`);
+                continue;
+            }
+
+        }
+    }
+
+    return results;
+}
+
 module.exports = {
     md5_storage_compare: async ( osu_db_results, modify_md5_db = true ) => {
         folder_prepare( osu_md5_storage )
@@ -106,6 +138,8 @@ module.exports = {
 
         const md5_files = readdirSync( osu_md5_storage );
     
+        console.log('md5 storage have', md5_files.length, 'beatmaps');
+
         //get md5 info
         const beatmaps_db = existsSync( beatmaps_md5_db ) ? 
             modify_md5_db ? make_beatmaps_db() : JSON.parse( readFileSync( beatmaps_md5_db, {encoding: 'utf8'} )) : 
@@ -116,48 +150,42 @@ module.exports = {
             return DB.filter( x => md5_set.has( `${x.md5}.osu` ) === false );
         }
     
-        console.log('copying missed md5');
         const to_copy = difference ( beatmaps_db, md5_files );
-        for (const file of to_copy){
-            const filepath_from = path.join( songs_path, file.fpr );
-            const filepath_to = path.join( osu_md5_storage, `${file.md5}.osu` )
-            copyFileSync( filepath_from, filepath_to );
-            console.log('> copied', file.md5 );
 
-            const beatmap_in_osu_db = osu_db_results.beatmaps.find( x => x.beatmap_md5 === file.md5 );
+        console.log('found', to_copy.length, 'missed files in md5_storage');
+
+        const part = Math.trunc(to_copy.length / 250);
+        for (const i in to_copy){
+            if (i % part === 0 || i === 0) {
+                console.log( 'copying missed md5:', (i/to_copy.length*100).toFixed(1), '%' )
+            }
+
+            const filepath_from = path.join( songs_path, to_copy[i].fpr );
+            const filepath_to = path.join( osu_md5_storage, `${to_copy[i].md5}.osu` );
+            copyFileSync( filepath_from, filepath_to );
+
+            const beatmap_in_osu_db = osu_db_results.beatmaps.find( x => x.beatmap_md5 === to_copy[i].md5 );
             const beatmap_status = beatmap_in_osu_db ? convert_ranked( beatmap_in_osu_db.ranked_status_int ) : RankedStatus.unknown;
 
             await save_osu_file_info_in_db( filepath_from, beatmap_status );
-            console.log('beatmap info ', file.md5, 'saved in db');
         }
     
         console.log('> md5_storage_compare > complete');
     },
 
-    download_by_md5_list: async ( maps ) => {
-        let results = [];
+    get_missed_osu_files: async () => {
 
-        for (let md5 of maps){
-            const { beatmap_id } = await get_beatmap_id({ md5 });
+        const storage_files_set = new Set(readdirSync( osu_md5_storage )
+            .map( x => x.slice(0, x.length-4) ));
 
-            if (beatmap_id) {
-                const result = await download_beatmap_content({ beatmap_id, md5 }, osu_md5_storage );
+        const missed_files = (await beatmaps_md5.findAll({ logging: false, raw: true }))
+            .map( x => x.hash ).filter( x => !storage_files_set.has(x) );
 
-                if (result.data) {
-                    results.push({md5, data: result.data});
-                    writeFileSync(path.join(osu_md5_storage, `${md5}.osu`), result.data, {encoding: 'utf8'});
-                    console.log(`md5_storage > saved new ${md5}.osu > ${result.data.length} bytes`);
-                } else {
-                    results.push({md5, error: result.error});
-                    console.error(`md5_storage > error with ${md5} > ${result.error}`);
-                    continue;
-                }
+        console.log('md5_storage have', missed_files.length, 'missed files');
 
-            }
-        }
+        
+        await download_by_md5_list (missed_files)
 
-        return results;
     },
-
 
 }
