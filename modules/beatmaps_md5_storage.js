@@ -187,7 +187,7 @@ module.exports = {
     },
 
     get_missed_osu_files: async () => {
-        const missing_beatmaps_info = existsSync( missing_beatmaps_info_path ) ? JSON.parse(readFileSync( missing_beatmaps_info_path, 'utf8' )) : [];
+        const missing_beatmaps_info = existsSync( missing_beatmaps_info_path ) ? JSON.parse( readFileSync( missing_beatmaps_info_path, 'utf8' )) : [];
 
         const storage_files_set = new Set(readdirSync( osu_md5_storage )
             .map( x => x.slice(0, x.length-4) ));
@@ -199,7 +199,7 @@ module.exports = {
             
         const missed_files_without_ignored = missed_files.filter( md5 => {
             const miss_map = missing_beatmaps_info.find( v => v.md5 === md5 );
-            if ( miss_map && miss_map.count > missing_beatmap_max_check_count ) {
+            if ( miss_map && miss_map.count >= missing_beatmap_max_check_count ) {
                 return false;
             } else {
                 return true;

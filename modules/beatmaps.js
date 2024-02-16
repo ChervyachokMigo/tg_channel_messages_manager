@@ -1,5 +1,8 @@
+const { rmSync } = require('fs');
+const path = require('path');
+
 const { beatmaps_md5 } = require("../modules/DB/defines");
-const { debug_beatmapset_id } = require("../userdata/config");
+const { debug_beatmapset_id, osu_md5_storage } = require("../userdata/config");
 
 // eslint-disable-next-line no-undef
 const beatmap_pattern = /https:\/\/osu\.ppy\.sh\/beatmapsets\/([0-9]+)(#([A-Za-z]+)\/([0-9]+)?)*/i 
@@ -44,7 +47,12 @@ module.exports = {
         return null;
     },
 
-    remove_beatmap: async (hash) => {
-        await beatmaps_md5.destroy({ where: {hash}, logging: false});
+    remove_beatmap: async ( hash ) => {
+        try{
+            await beatmaps_md5.destroy({ where: { hash }, logging: false});
+            rmSync( path.join( osu_md5_storage, hash + '.osu' ) );
+        } catch (e) {
+            console.error(e);
+        }
     }
 }
