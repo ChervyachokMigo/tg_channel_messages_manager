@@ -35,6 +35,7 @@ module.exports = {
     check_duplicates: true,
     debug_beatmapset_id: true,
     check_beatmaps_db_records: true,
+    validate_md5: true, // validating md5 storage
 
     md5_download_print_progress: true,
     md5_storage_compare_print_progress: true,

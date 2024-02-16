@@ -195,19 +195,21 @@ module.exports = {
         const missed_files = 
             (await beatmaps_md5.findAll({ logging: false, raw: true }))
             .map( x => x.hash )
-            .filter( md5 => !storage_files_set.has(md5) )
-            .filter( md5 => {
-                const miss_map = missing_beatmaps_info.find( v => v.md5 === md5 );
-                if ( miss_map && miss_map.count > missing_beatmap_max_check_count ) {
-                    return false;
-                } else {
-                    return true;
-                }
-            });
+            .filter( md5 => !storage_files_set.has(md5) );
+            
+        const missed_files_without_ignored = missed_files.filter( md5 => {
+            const miss_map = missing_beatmaps_info.find( v => v.md5 === md5 );
+            if ( miss_map && miss_map.count > missing_beatmap_max_check_count ) {
+                return false;
+            } else {
+                return true;
+            }
+        });
 
         console.log('md5_storage have', missed_files.length, 'missed files');
+        console.log('md5_storage have', missed_files_without_ignored.length, 'missed without ignored files');
 
-        const errors = await download_by_md5_list (missed_files);
+        const errors = await download_by_md5_list (missed_files_without_ignored);
 
         //save errors
         const missing_beatmaps_md5_set = new Set( missing_beatmaps_info.map( x => x.md5 ) );
@@ -243,8 +245,10 @@ module.exports = {
             }
         }
 
-        writeFileSync( incorrect_md5_files_path , failed, 'utf8' );
-        
+        console.log(`${failed.length} beatmaps md5 in not correct`);
+
+        writeFileSync( incorrect_md5_files_path , JSON.stringify(failed), 'utf8' );
+
         return failed;
     },
 

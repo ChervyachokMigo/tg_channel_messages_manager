@@ -1,4 +1,4 @@
-const { userdata_path, download_folder, forever_overwrite_md5_db, osu_md5_storage } = require('./userdata/config.js');
+const { userdata_path, download_folder, forever_overwrite_md5_db, osu_md5_storage, validate_md5 } = require('./userdata/config.js');
 
 const { folder_prepare } = require('./misc/tools.js');
 const tg_channel_messages_parser = require('./tools/tg_channel_messages_parser.js');
@@ -44,7 +44,9 @@ console.log('osu db have', osu_db_results.number_beatmaps, 'beatmaps');
     
     await md5_storage_compare(osu_db_results, forever_overwrite_md5_db);
     await get_missed_osu_files();
-    validate_storage();
+    if (validate_md5){
+        validate_storage();
+    }
 
     await tg_bot.load();
 
