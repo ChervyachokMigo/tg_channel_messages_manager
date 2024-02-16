@@ -8,11 +8,12 @@ const { RankedStatus, parse_osu_file } = require('osu-tools');
 
 const { userdata_path, osu_md5_storage, osu_path, md5_download_print_progress, 
     md5_storage_compare_print_progress, md5_storage_validate_print_progress, 
-    print_progress_frequency} = require("../userdata/config.js");
+    print_progress_frequency, missing_beatmap_max_check_count} = require("../userdata/config.js");
 
 const songs_path = path.join(osu_path, 'Songs');
 const beatmaps_md5_db = path.join(userdata_path, 'beatmaps_md5_db.json');
-const missing_beatmaps_info_path = path.join( userdata_path, 'missing_beatmaps_info' );
+const missing_beatmaps_info_path = path.join( userdata_path, 'missing_beatmaps_info.json' );
+const incorrect_md5_files_path =  path.join( userdata_path, 'incorrect_md5_files.json' );
 
 const blocked_files = [
     '7618a9c8a083537383bb76d641762159',
@@ -186,19 +187,29 @@ module.exports = {
     },
 
     get_missed_osu_files: async () => {
+        const missing_beatmaps_info = existsSync( missing_beatmaps_info_path ) ? JSON.parse(readFileSync( missing_beatmaps_info_path, 'utf8' )) : [];
 
         const storage_files_set = new Set(readdirSync( osu_md5_storage )
             .map( x => x.slice(0, x.length-4) ));
 
-        const missed_files = (await beatmaps_md5.findAll({ logging: false, raw: true }))
-            .map( x => x.hash ).filter( x => !storage_files_set.has(x) );
+        const missed_files = 
+            (await beatmaps_md5.findAll({ logging: false, raw: true }))
+            .map( x => x.hash )
+            .filter( md5 => !storage_files_set.has(md5) )
+            .filter( md5 => {
+                const miss_map = missing_beatmaps_info.find( v => v.md5 === md5 );
+                if ( miss_map && miss_map.count > missing_beatmap_max_check_count ) {
+                    return false;
+                } else {
+                    return true;
+                }
+            });
 
         console.log('md5_storage have', missed_files.length, 'missed files');
 
         const errors = await download_by_md5_list (missed_files);
 
         //save errors
-        const missing_beatmaps_info = existsSync( missing_beatmaps_info_path ) ? JSON.parse(readFileSync( missing_beatmaps_info_path, 'utf8' )) : [];
         const missing_beatmaps_md5_set = new Set( missing_beatmaps_info.map( x => x.md5 ) );
         const new_errors = errors.filter( x => !missing_beatmaps_md5_set.has( x.md5 ) );
         const old_errors = errors.filter( x => missing_beatmaps_md5_set.has( x.md5 ) );
@@ -232,6 +243,8 @@ module.exports = {
             }
         }
 
+        writeFileSync( incorrect_md5_files_path , failed, 'utf8' );
+        
         return failed;
     },
 

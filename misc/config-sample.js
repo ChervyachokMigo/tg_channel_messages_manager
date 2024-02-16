@@ -41,4 +41,5 @@ module.exports = {
     md5_storage_validate_print_progress: true,
 
     print_progress_frequency: 10,    // 1 = 0.1 %, 10 = 1%, 100 = 10%, 
+    missing_beatmap_max_check_count: 2,
 }
