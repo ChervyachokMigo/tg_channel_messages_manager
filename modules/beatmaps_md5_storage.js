@@ -2,10 +2,13 @@ const { default: axios } = require('axios');
 const crypto = require('crypto');
 const { writeFileSync, existsSync, readFileSync, copyFileSync, readdirSync } = require('fs');
 const { globSync } = require('glob'); 
+const md5File = require('md5-file');
 const path = require('path');
 const { RankedStatus, parse_osu_file } = require('osu-tools');
 
-const { userdata_path, osu_md5_storage, osu_path } = require("../userdata/config.js");
+const { userdata_path, osu_md5_storage, osu_path, md5_download_print_progress, 
+    md5_storage_compare_print_progress, md5_storage_validate_print_progress, 
+    print_progress_frequency} = require("../userdata/config.js");
 
 const songs_path = path.join(osu_path, 'Songs');
 const beatmaps_md5_db = path.join(userdata_path, 'beatmaps_md5_db.json');
@@ -15,7 +18,6 @@ const blocked_files = [
     'd41d8cd98f00b204e9800998ecf8427e'
 ];
 
-const { folder_prepare } = require('../misc/tools.js');
 const { osu_beatmap_id, beatmaps_md5 } = require('./DB/defines.js');
 const save_osu_file_info_in_db = require('../tools/save_osu_file_info_in_db.js');
 
@@ -100,43 +102,43 @@ const get_beatmap_id = async ({ md5 }) => {
 }
 
 const download_by_md5_list = async ( maps ) => {
-    const part = Math.trunc(maps.length / 250);
-    let results = [];
+    
+    const part = Math.trunc(maps.length / (1000 / print_progress_frequency) );
+
+    let errors = [];
     let i = 0;
 
     for (let md5 of maps){
         const { beatmap_id } = await get_beatmap_id({ md5 });
 
         if (beatmap_id) {
-            if (i % part === 0 || i === 0) {
-                console.log( 'downloading missed md5:', (i/maps.length*100).toFixed(1), '%' )
+            if (md5_download_print_progress){
+                if (i % part === 0 || i === 0) {
+                    console.log( 'downloading missed md5:', (i/maps.length*100).toFixed(1), '%', `(${i}/${maps.length})` );
+                }
+                i = i + 1;
             }
-            i = i + 1;
 
             const result = await download_beatmap_content({ beatmap_id, md5 }, osu_md5_storage );
 
+            //saved new osu file
             if (result.data) {
-                results.push({md5, data: result.data});
                 writeFileSync(path.join(osu_md5_storage, `${md5}.osu`), result.data, {encoding: 'utf8'});
-                //console.log(`md5_storage > saved new ${md5}.osu > ${result.data.length} bytes`);
             } else {
-                results.push({md5, error: result.error});
-                console.error(`md5_storage > error with ${md5} > ${result.error}`);
-                continue;
+                errors.push({ md5, error: result.error });
+                console.error(`md5_storage > error: ${result.error}`);
             }
-
         }
     }
 
-    return results;
+    return errors;
 }
 
 module.exports = {
     download_by_md5_list,
     
     md5_storage_compare: async ( osu_db_results, modify_md5_db = true ) => {
-        folder_prepare( osu_md5_storage )
-        console.log('> md5_storage_compare > checking...');        
+        console.log('md5_storage > compairing');        
 
         const md5_files = readdirSync( osu_md5_storage );
     
@@ -153,13 +155,15 @@ module.exports = {
         }
     
         const to_copy = difference ( beatmaps_db, md5_files );
-
         console.log('found', to_copy.length, 'missed files in md5_storage');
 
-        const part = Math.trunc(to_copy.length / 250);
+        const part = Math.trunc(to_copy.length / (1000 / print_progress_frequency));
+
         for (const i in to_copy){
-            if (i % part === 0 || i === 0) {
-                console.log( 'copying missed md5:', (i/to_copy.length*100).toFixed(1), '%' )
+            if (md5_storage_compare_print_progress){
+                if (i % part === 0 || i === 0) {
+                    console.log( 'copying missed md5:', (i/to_copy.length*100).toFixed(1), '%', `(${i}/${to_copy.length})` );
+                }
             }
 
             const filepath_from = path.join( songs_path, to_copy[i].fpr );
@@ -188,6 +192,33 @@ module.exports = {
         
         await download_by_md5_list (missed_files)
 
+    },
+
+    validate_storage: () => {
+        console.log('md5_storage > validating');        
+        const md5_files = readdirSync( osu_md5_storage );
+        console.log('md5 storage have', md5_files.length, 'beatmaps');
+  
+        const part = Math.trunc(md5_files.length / (1000 / print_progress_frequency) );
+
+        let failed = []
+
+        for (const i in md5_files){
+            if (md5_storage_validate_print_progress){
+                if (i % part === 0 || i === 0) {
+                    console.log( 'validating md5:', (i/md5_files.length*100).toFixed(1), '%', `(${i}/${md5_files.length})` );
+                }
+            }
+            const filepath = path.join( osu_md5_storage, md5_files[i] );
+            const md5_hash = md5File.sync( filepath );
+            const md5_filename = path.basename( filepath , '.osu' );
+            if (md5_hash !== md5_filename){
+                console.error( `warning! beatmap ${md5_filename} is not valid to ${md5_hash}` );
+                failed.push({ file: md5_filename, expected: md5_hash });
+            }
+        }
+
+        return failed;
     },
 
 }

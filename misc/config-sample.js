@@ -35,4 +35,10 @@ module.exports = {
     check_duplicates: true,
     debug_beatmapset_id: true,
     check_beatmaps_db_records: true,
+
+    md5_download_print_progress: true,
+    md5_storage_compare_print_progress: true,
+    md5_storage_validate_print_progress: true,
+
+    print_progress_frequency: 10,    // 1 = 0.1 %, 10 = 1%, 100 = 10%, 
 }

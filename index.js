@@ -1,4 +1,4 @@
-const { userdata_path, download_folder, forever_overwrite_md5_db } = require('./userdata/config.js');
+const { userdata_path, download_folder, forever_overwrite_md5_db, osu_md5_storage } = require('./userdata/config.js');
 
 const { folder_prepare } = require('./misc/tools.js');
 const tg_channel_messages_parser = require('./tools/tg_channel_messages_parser.js');
@@ -17,13 +17,14 @@ const check_existed_beatmaps_from_list = require('./tools/check_existed_beatmaps
 const save_messages_ids_in_db = require('./tools/save_messages_ids_in_db.js');
 
 const load_osu_db = require('./tools/load_osu_db.js');
-const { md5_storage_compare, get_missed_osu_files } = require('./modules/beatmaps_md5_storage.js');
+const { md5_storage_compare, get_missed_osu_files, validate_storage } = require('./modules/beatmaps_md5_storage.js');
 
 // eslint-disable-next-line no-undef
 const argv = process.argv.slice(2);
 
-folder_prepare(userdata_path);
-folder_prepare(download_folder);
+folder_prepare( userdata_path );
+folder_prepare( download_folder );
+folder_prepare( osu_md5_storage );
 
 const channel_beatmaps = tg_channel_messages_parser();
 console.log('loaded channel_beatmaps from chat', channel_beatmaps.length);
@@ -44,6 +45,7 @@ console.log('osu db have', osu_db_results.number_beatmaps, 'beatmaps');
     
     await md5_storage_compare(osu_db_results, forever_overwrite_md5_db);
     await get_missed_osu_files();
+    validate_storage();
 
     await tg_bot.load();
 

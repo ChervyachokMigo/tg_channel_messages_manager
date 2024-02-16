@@ -16,6 +16,7 @@
     "delayed_chunks": "github:ChervyachokMigo/delayed_chunks",
     "glob": "^10.3.10",
     "input": "^1.0.1",
+    "md5-file": "^5.0.0",
     "mysql2": "^3.9.1",
     "osu-api-extended": "^2.8.3",
     "osu-tools": "github:ChervyachokMigo/osu-tools",
