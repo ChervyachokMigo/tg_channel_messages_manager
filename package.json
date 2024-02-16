@@ -11,7 +11,10 @@
   "license": "ISC",
   "dependencies": {
     "@sequelize/core": "^7.0.0-alpha.37",
+    "axios": "^1.6.7",
+    "crypto": "^1.0.1",
     "delayed_chunks": "github:ChervyachokMigo/delayed_chunks",
+    "glob": "^10.3.10",
     "input": "^1.0.1",
     "mysql2": "^3.9.1",
     "osu-api-extended": "^2.8.3",

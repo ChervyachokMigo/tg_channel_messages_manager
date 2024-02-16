@@ -1,6 +1,5 @@
 const fs = require('fs');
 const { MYSQL_GET_ALL } = require('../modules/DB/base.js');
-const auth_osu = require('../modules/osu_auth.js');
 const { v2 } = require('osu-api-extended');
 const convert_ranked = require('./convert_ranked.js');
 const path = require('path');
@@ -19,8 +18,6 @@ module.exports = async (chat_beatmaps) => {
     //filter maps missed in db table 'beatmap_id'
     const missed_ids = beatmaps_ids_chat.filter( x => !beatmapset_ids.has(x) );
     console.log('missed ids', missed_ids.length);
-
-    await auth_osu();
 
     let result_errors_ids = [];
 
