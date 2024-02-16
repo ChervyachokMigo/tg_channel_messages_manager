@@ -132,6 +132,8 @@ const download_by_md5_list = async ( maps ) => {
 }
 
 module.exports = {
+    download_by_md5_list,
+    
     md5_storage_compare: async ( osu_db_results, modify_md5_db = true ) => {
         folder_prepare( osu_md5_storage )
         console.log('> md5_storage_compare > checking...');        
