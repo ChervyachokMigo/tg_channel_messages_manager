@@ -15,7 +15,7 @@ module.exports = async () => {
 
     let is_continue = true;
 
-    let since_date = existsSync(saved_since_date_path) ? JSON.parse( readFileSync( saved_since_date_path, 'utf8' )).date : '2007-01-01';
+    let since_date = existsSync(saved_since_date_path) ? JSON.parse( readFileSync( saved_since_date_path, 'utf8' )).since_date : '2007-01-01';
 
     while ( is_continue ) {
         console.log( 'get beatmaps since', since_date );
@@ -53,5 +53,5 @@ module.exports = async () => {
         }
     }
 
-    writeFileSync( saved_since_date_path, JSON.stringify(since_date), 'utf8' );
+    writeFileSync( saved_since_date_path, JSON.stringify({ since_date }), 'utf8' );
 }
