@@ -1,3 +1,4 @@
+const input = require('input');
 const path = require('path');
 
 const { folder_prepare } = require('./misc/tools.js');
@@ -34,9 +35,9 @@ console.log('loaded channel_beatmaps from channel', channel_beatmaps.length);
 
 osu_db.init();
 
-//скачать инфу о всех картах из осу в1
 //проверить соответствие информации о картах
 //веб интерфейс для загрузки карт*
+
 
 ( async () => {
     await prepareDB();
@@ -56,7 +57,8 @@ osu_db.init();
     const action = argv.shift();
 
     if (action === 'download') {
-        await command_download_beatmaps(argv, channel_beatmaps);
+        const input_args = input.text('[Download beatmaps] Enter arguments (Skip for default):');
+        await command_download_beatmaps([...argv, input_args], channel_beatmaps);
         return;
     } else if ( action === 'update_beatmaps_info') {
         await update_beatmaps_info();
