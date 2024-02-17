@@ -1,9 +1,10 @@
+const { existsSync } = require('fs');
+const input  = require("input");
 const path = require('path');
 const { TelegramClient } = require( "telegram");
 const { StringSession } = require("telegram/sessions");
-const input  = require("input");
+
 const { apiId, apiHash, chat_name, session_string, download_folder, userdata_path } = require("../userdata/config");
-const { existsSync } = require('fs');
 
 const stringSession = new StringSession(session_string);
 

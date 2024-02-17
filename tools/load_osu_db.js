@@ -1,9 +1,8 @@
 const { existsSync } = require('fs');
-
 const path = require('path');
-const { osu_path } = require('../userdata/config.js');
 const { osu_db_load, beatmap_property } = require('osu-tools');
 
+const { osu_path } = require('../userdata/config.js');
 const osu_db_path = path.join( osu_path, 'osu!.db');
 
 module.exports = () => {

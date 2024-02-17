@@ -18,6 +18,8 @@ module.exports = {
     apiId: 0,
     apiHash: "",
 
+    api_v1_key: '',
+
     chat_name: '',
 
     userdata_path: 'userdata',
@@ -44,4 +46,5 @@ module.exports = {
 
     print_progress_frequency: 10,    // 1 = 0.1 %, 10 = 1%, 100 = 10%, 
     missing_beatmap_max_check_count: 1,
+    
 }

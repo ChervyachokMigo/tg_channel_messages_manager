@@ -2,12 +2,12 @@ const { MYSQL_SAVE, MYSQL_DELETE, MYSQL_GET_ALL } = require("../modules/DB/base"
 const { check_beatmaps_db_records } = require("../userdata/config");
 
 module.exports = {
-    check_beatmaps_in_chat: async ( beatmaps_chat, beatmaps_db ) => {
+    check_beatmaps_in_channel: async ( channel_beatmaps_ids, beatmaps_db ) => {
         const sended_db_set = new Set( beatmaps_db );
     
-        console.log('check beatmaps in chat but not in db');
+        console.log('check beatmaps in channel but not in db');
     
-        for(let beatmapset_id of beatmaps_chat){
+        for(let beatmapset_id of channel_beatmaps_ids){
             if (!sended_db_set.has(beatmapset_id)){
                 console.log('need add to db', beatmapset_id);
                 //await MYSQL_SAVE('sended_map_db', { beatmapset_id }, { beatmapset_id });
@@ -17,10 +17,10 @@ module.exports = {
         console.log('ended');
     },
 
-    check_beatmaps_in_db: async ( beatmaps_chat, beatmaps_db ) => {
-        const sended_chat = new Set( beatmaps_chat );
+    check_beatmaps_in_db: async ( channel_beatmaps_ids, beatmaps_db ) => {
+        const sended_chat = new Set( channel_beatmaps_ids );
     
-        console.log('check beatmaps in db but not in chat');
+        console.log('check beatmaps in db but not in channel');
     
         for(let beatmapset_id of beatmaps_db){
             if (!sended_chat.has(beatmapset_id)){
@@ -32,16 +32,16 @@ module.exports = {
         console.log('ended');
     },
 
-    sync_db_records_of_chat_beatmaps: async (chat_beatmaps) => {
-        const beatmaps_ids_chat = chat_beatmaps.map( x => x.beatmapset_id );
+    sync_db_records_of_channel_beatmaps: async (channel_beatmaps) => {
+        const channel_beatmaps_ids = channel_beatmaps.map( x => x.beatmapset_id );
         const sended_maps_db = (await MYSQL_GET_ALL('sended_map_db'))
             .map( x => x.beatmapset_id );
             
-        console.log('loaded chat sended_beatmaps from db', sended_maps_db.length);
+        console.log( 'loaded chat sended_beatmaps from db', sended_maps_db.length );
     
         if(check_beatmaps_db_records){
-            await module.exports.check_beatmaps_in_chat(beatmaps_ids_chat, sended_maps_db);
-            await module.exports.check_beatmaps_in_db(beatmaps_ids_chat, sended_maps_db);
+            await module.exports.check_beatmaps_in_channel( channel_beatmaps_ids, sended_maps_db );
+            await module.exports.check_beatmaps_in_db( channel_beatmaps_ids, sended_maps_db );
         }
     }
 }

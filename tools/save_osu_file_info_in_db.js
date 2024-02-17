@@ -1,6 +1,6 @@
 const { v2 } = require('osu-api-extended');
-
 const { parse_osu_file, RankedStatus } = require('osu-tools');
+
 const save_beatmap_info = require('./save_beatmap_info');
 const convert_ranked = require('./convert_ranked');
 

@@ -1,0 +1,2 @@
+node index.js update_beatmaps_info
+pause

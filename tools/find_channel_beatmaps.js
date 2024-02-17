@@ -8,17 +8,17 @@ const find_beatmaps = require("./find_beatmaps");
  * 
  */
 
-module.exports = async ( sended_beatmaps, condition ) => {
-    const chat_beatmaps = sended_beatmaps.map( x=> { return { 
+module.exports = async ( channel_beatmaps, condition ) => {
+    const beatmaps = channel_beatmaps.map( x => { return { 
         beatmapset_id: x.beatmapset_id, 
         message_id: x.message_id
     }});
 
     const results = (await find_beatmaps(condition))
-        .map( x => { 
-            const chat_record = chat_beatmaps.find( y => x.beatmapset_id === y.beatmapset_id );
+        .map( record => { 
+            const chat_record = beatmaps.find( x => record.beatmapset_id === x.beatmapset_id );
             return {
-            ...x, 
+            ...record, 
             message_id: chat_record ? chat_record.message_id : null,
         }});
 

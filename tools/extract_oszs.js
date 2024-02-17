@@ -1,9 +1,10 @@
-const fs = require('fs');
-const { download_folder, extract_folder, userdata_path } = require('../userdata/config');
-const path = require('path');
-const { folder_prepare } = require('../misc/tools');
 const { spawnSync } = require('child_process');
+const fs = require('fs');
+const path = require('path');
 
+const { folder_prepare } = require('../misc/tools');
+
+const { download_folder, extract_folder, userdata_path } = require('../userdata/config');
 const exe = path.join('..', 'bin', '7z.exe');
 
 // eslint-disable-next-line no-undef
@@ -11,7 +12,6 @@ const work_path = path.dirname( process.argv.slice(1).shift() );
 const download_relative_path = path.join(userdata_path, download_folder);
 const extract_relative_path = path.join(download_relative_path, extract_folder);
 const download_path = path.join(work_path, download_folder);
-
 
 
 folder_prepare(extract_relative_path);
