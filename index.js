@@ -21,6 +21,7 @@ const command_download_beatmaps = require('./command_action/command_download_bea
 
 const { userdata_path, download_folder, forever_overwrite_md5_db, osu_md5_storage, validate_md5 } = require('./userdata/config.js');
 const update_beatmaps_info = require('./command_action/update_beatmaps_info.js');
+const count_beatmaps = require('./command_action/count_beatmaps.js');
 const dowload_path = path.join( userdata_path, download_folder );
 
 // eslint-disable-next-line no-undef
@@ -57,11 +58,14 @@ osu_db.init();
     const action = argv.shift();
 
     if (action === 'download') {
-        const input_args = input.text('[Download beatmaps] Enter arguments (Skip for default):');
-        await command_download_beatmaps([...argv, ...input_args], channel_beatmaps);
+        const input_args = await input.text('[Download beatmaps] Enter arguments (Skip for default):');
+        await command_download_beatmaps([...argv, input_args], channel_beatmaps);
         return;
     } else if ( action === 'update_beatmaps_info') {
         await update_beatmaps_info();
+        return;
+    } else if ( action === 'count_beatmaps') {
+        await count_beatmaps();
         return;
     }
 
