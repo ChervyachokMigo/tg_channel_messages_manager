@@ -8,7 +8,7 @@ const save_osu_file_info_in_db = require('./save_osu_file_info_in_db');
 
 const extracted_path = path.join(userdata_path, download_folder, extract_folder);
 
-module.exports = async (osu_db_results) => {
+module.exports = async () => {
     console.log('start parsing downloaded beatmaps');
 
     //get osu pathes
@@ -20,7 +20,7 @@ module.exports = async (osu_db_results) => {
             if (file.toLowerCase().endsWith(".osu")){
                 const filepath = path.join(beatmapset_path, file);
 
-                await save_osu_file_info_in_db(osu_db_results, filepath);
+                await save_osu_file_info_in_db( filepath );
                 
             }
         }

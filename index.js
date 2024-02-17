@@ -18,8 +18,9 @@ const check_existed_beatmaps_from_list = require('./tools/check_existed_beatmaps
 
 const save_messages_ids_in_db = require('./tools/save_messages_ids_in_db.js');
 
-const load_osu_db = require('./tools/load_osu_db.js');
+
 const { md5_storage_compare, get_missed_osu_files, validate_storage, remove_missed_osu_files } = require('./modules/beatmaps_md5_storage.js');
+const osu_db = require('./modules/osu_db.js');
 
 // eslint-disable-next-line no-undef
 const argv = process.argv.slice(2);
@@ -32,8 +33,7 @@ folder_prepare( osu_md5_storage );
 const channel_beatmaps = tg_channel_messages_parser();
 console.log('loaded channel_beatmaps from chat', channel_beatmaps.length);
 
-const osu_db_results = load_osu_db();
-console.log('osu db have', osu_db_results.number_beatmaps, 'beatmaps');
+osu_db.init();
 
 //добавить проверку каких карт нет в телеге
 //добавить проверку какие карты в телеге загружены и какие сохранены в базе как "загруженые"
@@ -45,12 +45,12 @@ console.log('osu db have', osu_db_results.number_beatmaps, 'beatmaps');
 
     await auth_osu();
     
-    await md5_storage_compare(osu_db_results, forever_overwrite_md5_db);
+    await md5_storage_compare( forever_overwrite_md5_db );
     await get_missed_osu_files();
-    await remove_missed_osu_files(osu_db_results);
+    await remove_missed_osu_files();
 
     if (validate_md5){
-        validate_storage(osu_db_results);
+        validate_storage();
     }
 
     await tg_bot.load();
@@ -91,7 +91,7 @@ console.log('osu db have', osu_db_results.number_beatmaps, 'beatmaps');
 
         //search beatmaps and download them
         const tg_searching_results = await find_chat_beatmaps( channel_beatmaps, params );
-        const not_exists_beatmaps = await check_existed_beatmaps_from_list(tg_searching_results , osu_db_results);
+        const not_exists_beatmaps = await check_existed_beatmaps_from_list(tg_searching_results);
         console.log( 'found not exists beatmaps', not_exists_beatmaps.length );
         if (not_exists_beatmaps.length > 0) {
             await download_beatmaps( not_exists_beatmaps );
@@ -118,7 +118,7 @@ console.log('osu db have', osu_db_results.number_beatmaps, 'beatmaps');
             //download missing files
             await download_beatmaps(messages_ids);
             extract_oszs();
-            await save_extracted_osu_files_info_in_db(osu_db_results);
+            await save_extracted_osu_files_info_in_db();
         }
 
     } else {

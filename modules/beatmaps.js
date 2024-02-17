@@ -3,6 +3,7 @@ const path = require('path');
 
 const { beatmaps_md5 } = require("../modules/DB/defines");
 const { debug_beatmapset_id, osu_md5_storage, osu_path } = require("../userdata/config");
+const osu_db = require('./osu_db');
 
 const songs_path = path.join(osu_path, 'Songs');
 
@@ -51,7 +52,7 @@ module.exports = {
 
     remove_beatmap_db: async ( hash ) => {
         if (!hash){
-            console.error('cant remove beatmap:', hash);
+            console.error('cant remove beatmap:', hash );
             return;
         }
         try{
@@ -61,12 +62,14 @@ module.exports = {
         }
     },
 
-    remove_beatmap_songs: (osu_db_results, md5) => {
+    remove_beatmap_songs: (md5) => {
         if (!md5){
             console.error('cant remove beatmap:', md5);
             return;
         }
-        const beatmap_db = osu_db_results.beatmaps.find( x => x.beatmap_md5 === md5 );
+
+        const beatmap_db = osu_db.find_beatmap(md5);
+
         if (beatmap_db && beatmap_db.folder_name && beatmap_db.osu_filename) {
             const filepath_songs = path.join( songs_path, beatmap_db.folder_name, beatmap_db.osu_filename );
             try {
@@ -92,13 +95,13 @@ module.exports = {
         }
     },
 
-    remove_beatmap: async ( osu_db_results, md5 ) => {
+    remove_beatmap: async ( md5 ) => {
         if (!md5){
             console.error('cant remove beatmap:', md5);
             return;
         }
         console.error( `deleting ${md5}` );
-        module.exports.remove_beatmap_songs( osu_db_results, md5 );
+        module.exports.remove_beatmap_songs( md5 );
         module.exports.remove_beatmap_storage( md5 );
         await module.exports.remove_beatmap_db( md5 );
     }
