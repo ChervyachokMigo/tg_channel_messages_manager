@@ -20,9 +20,9 @@ module.exports = {
 
     chat_name: '',
 
+    userdata_path: 'userdata',
     download_folder: 'downloaded_beatmaps',
     extract_folder: 'extracted',
-    userdata_path: 'userdata',
 
     osu_path: 'C:\\osu!',
     osu_md5_storage: 'C:\\osu_md5_storage',
@@ -36,11 +36,12 @@ module.exports = {
     debug_beatmapset_id: true,
     check_beatmaps_db_records: true,
     validate_md5: true, // validating md5 storage
+    delete_failed_md5: true,
 
     md5_download_print_progress: true,
     md5_storage_compare_print_progress: true,
     md5_storage_validate_print_progress: true,
 
     print_progress_frequency: 10,    // 1 = 0.1 %, 10 = 1%, 100 = 10%, 
-    missing_beatmap_max_check_count: 2,
+    missing_beatmap_max_check_count: 1,
 }

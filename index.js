@@ -1,3 +1,5 @@
+const path = require('path');
+
 const { userdata_path, download_folder, forever_overwrite_md5_db, osu_md5_storage, validate_md5 } = require('./userdata/config.js');
 
 const { folder_prepare } = require('./misc/tools.js');
@@ -11,19 +13,20 @@ const tg_bot = require('./modules/tg_bot.js');
 const extract_oszs = require('./tools/extract_oszs.js');
 const save_extracted_osu_files_info_in_db = require('./tools/save_extracted_osu_files_info_in_db.js');
 const download_beatmaps = require('./tools/download_beatmaps.js');
-const find_beatmaps = require('./tools/find_beatmaps.js');
+const find_chat_beatmaps = require('./tools/find_chat_beatmaps.js');
 const check_existed_beatmaps_from_list = require('./tools/check_existed_beatmaps_from_list.js');
 
 const save_messages_ids_in_db = require('./tools/save_messages_ids_in_db.js');
 
 const load_osu_db = require('./tools/load_osu_db.js');
-const { md5_storage_compare, get_missed_osu_files, validate_storage } = require('./modules/beatmaps_md5_storage.js');
+const { md5_storage_compare, get_missed_osu_files, validate_storage, remove_missed_osu_files } = require('./modules/beatmaps_md5_storage.js');
 
 // eslint-disable-next-line no-undef
 const argv = process.argv.slice(2);
 
-folder_prepare( userdata_path );
-folder_prepare( download_folder );
+const dowload_path = path.join( userdata_path, download_folder )
+
+folder_prepare( dowload_path );
 folder_prepare( osu_md5_storage );
 
 const channel_beatmaps = tg_channel_messages_parser();
@@ -44,8 +47,10 @@ console.log('osu db have', osu_db_results.number_beatmaps, 'beatmaps');
     
     await md5_storage_compare(osu_db_results, forever_overwrite_md5_db);
     await get_missed_osu_files();
+    await remove_missed_osu_files(osu_db_results);
+
     if (validate_md5){
-        validate_storage();
+        validate_storage(osu_db_results);
     }
 
     await tg_bot.load();
@@ -55,7 +60,8 @@ console.log('osu db have', osu_db_results.number_beatmaps, 'beatmaps');
     if (action === 'download') {
         const allowed_params = ['beatmap_md5', 'beatmap_id', 'beatmapset_id', 'gamemode', 'ranked'];
 
-        let params = {};
+        //default params
+        let params = { ranked: 4, gamemode: 0 };
 
         for (let arg of argv) {
             if (!arg) break;
@@ -84,7 +90,7 @@ console.log('osu db have', osu_db_results.number_beatmaps, 'beatmaps');
         }
 
         //search beatmaps and download them
-        const tg_searching_results = await find_beatmaps( channel_beatmaps, params );
+        const tg_searching_results = await find_chat_beatmaps( channel_beatmaps, params );
         const not_exists_beatmaps = await check_existed_beatmaps_from_list(tg_searching_results , osu_db_results);
         console.log( 'found not exists beatmaps', not_exists_beatmaps.length );
         if (not_exists_beatmaps.length > 0) {
@@ -112,7 +118,7 @@ console.log('osu db have', osu_db_results.number_beatmaps, 'beatmaps');
             //download missing files
             await download_beatmaps(messages_ids);
             extract_oszs();
-            await save_extracted_osu_files_info_in_db();
+            await save_extracted_osu_files_info_in_db(osu_db_results);
         }
 
     } else {

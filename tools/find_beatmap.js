@@ -22,7 +22,7 @@ module.exports = async ({
         beatmap_id_condition.beatmapset_id = beatmapset_id;
 
 
-    return await osu_beatmap_id.findAll({
+    return await osu_beatmap_id.findOne({
         where: beatmap_id_condition,
 
         include: [{ model: beatmaps_md5, where: md5_condition },

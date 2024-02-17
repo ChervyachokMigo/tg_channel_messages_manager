@@ -2,7 +2,7 @@ const path = require('path');
 const { TelegramClient } = require( "telegram");
 const { StringSession } = require("telegram/sessions");
 const input  = require("input");
-const { apiId, apiHash, chat_name, session_string, download_folder } = require("../userdata/config");
+const { apiId, apiHash, chat_name, session_string, download_folder, userdata_path } = require("../userdata/config");
 const { existsSync } = require('fs');
 
 const stringSession = new StringSession(session_string);
@@ -38,9 +38,11 @@ module.exports = {
             console.log('doc', mes.document);
             return;
         }
+
         const attrs = mes.document.attributes.shift();
         const filename = attrs.fileName;
-        const filepath = path.join(download_folder, filename);
+        const filepath = path.join( userdata_path, download_folder, filename );
+
         if (existsSync(filepath)){
             console.log('file is exists, skipped ', filename );
             return;

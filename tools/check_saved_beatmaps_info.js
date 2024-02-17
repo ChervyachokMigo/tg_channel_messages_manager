@@ -23,7 +23,7 @@ module.exports = async (chat_beatmaps) => {
 
     //save missed beatmaps
     if (missed_ids.length > 0) {
-        let missed_count = 0;
+        let missed_count = 1;
         let error_beatmaps_ids = [];
 
         const result_errors_path = path.join(userdata_path, 'not_existed_info_beatmaps.json');
@@ -35,7 +35,8 @@ module.exports = async (chat_beatmaps) => {
         for (let beatmapset_id of missed_ids) {
             try {
                 console.log(`[ ${missed_count}/${missed_ids.length}, ${(missed_count / missed_ids.length * 100).toFixed(2)}% ] requesting beatmapset:`, beatmapset_id);
-
+                missed_count++;
+                
                 if ( result_errors_ids.length > 0 && result_errors_ids.indexOf(beatmapset_id) > -1 ){
                     console.log('skipped beatmapset id, not exists on bancho', beatmapset_id);
                     continue;
@@ -68,7 +69,7 @@ module.exports = async (chat_beatmaps) => {
                 console.error(e);
                 return;
             }
-            missed_count++;
+            
         }
 
         if (error_beatmaps_ids.length > 0) {

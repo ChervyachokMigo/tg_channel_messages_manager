@@ -22,7 +22,8 @@ module.exports = async ( beatmaps, continue_page = 0) => {
     for (let k in chunks.data){
         const chunk = await get_next_chunk( chunks.arr_id, time_delay );
         //                                              filter null and undefined
-        const messages = await get_messages( chunk.data.filter( x => x ));
+
+        const messages = await get_messages( chunk.data.filter( x => x ) );
 
         if (messages.length !== chunk.data.length ) 
             console.log('warning! miss message_id from list', chunk.data );

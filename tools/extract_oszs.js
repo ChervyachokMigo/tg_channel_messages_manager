@@ -1,5 +1,5 @@
 const fs = require('fs');
-const { download_folder, extract_folder } = require('../userdata/config');
+const { download_folder, extract_folder, userdata_path } = require('../userdata/config');
 const path = require('path');
 const { folder_prepare } = require('../misc/tools');
 const { spawnSync } = require('child_process');
@@ -8,14 +8,17 @@ const exe = path.join('..', 'bin', '7z.exe');
 
 // eslint-disable-next-line no-undef
 const work_path = path.dirname( process.argv.slice(1).shift() );
-const extract_relative_path = path.join(download_folder, extract_folder);
+const download_relative_path = path.join(userdata_path, download_folder);
+const extract_relative_path = path.join(download_relative_path, extract_folder);
 const download_path = path.join(work_path, download_folder);
+
+
 
 folder_prepare(extract_relative_path);
 
-
 module.exports = () => {
-    const downloaded_files = fs.readdirSync( download_folder, 'utf8' );
+    const downloaded_files = fs.readdirSync( download_relative_path, 'utf8' );
+
     if (downloaded_files.length > 0) {
 
         console.log('extracting downloaded files');

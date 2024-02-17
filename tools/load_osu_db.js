@@ -18,7 +18,9 @@ module.exports = () => {
         beatmap_property.gamemode,
         beatmap_property.beatmap_id,
         beatmap_property.beatmapset_id,
-        beatmap_property.ranked_status
+        beatmap_property.ranked_status,
+        beatmap_property.folder_name,
+        beatmap_property.osu_filename
     ];
     
     return osu_db_load(osu_db_path, beatmap_props);

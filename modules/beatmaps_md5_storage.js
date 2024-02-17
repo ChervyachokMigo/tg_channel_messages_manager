@@ -8,7 +8,8 @@ const { RankedStatus, parse_osu_file } = require('osu-tools');
 
 const { userdata_path, osu_md5_storage, osu_path, md5_download_print_progress, 
     md5_storage_compare_print_progress, md5_storage_validate_print_progress, 
-    print_progress_frequency, missing_beatmap_max_check_count} = require("../userdata/config.js");
+    print_progress_frequency, missing_beatmap_max_check_count,
+    delete_failed_md5} = require("../userdata/config.js");
 
 const songs_path = path.join(osu_path, 'Songs');
 const beatmaps_md5_db = path.join(userdata_path, 'beatmaps_md5_db.json');
@@ -25,6 +26,8 @@ const save_osu_file_info_in_db = require('../tools/save_osu_file_info_in_db.js')
 
 const { osu_file_props } = require('../misc/consts.js');
 const convert_ranked = require('../tools/convert_ranked.js');
+const { remove_beatmap } = require('./beatmaps.js');
+const find_beatmap = require("../tools/find_beatmap");
 
 const make_beatmaps_db = () => {
     console.log('> make_beatmaps_db > reading "Songs"...');
@@ -180,7 +183,7 @@ module.exports = {
             const beatmap_in_osu_db = osu_db_results.beatmaps.find( x => x.beatmap_md5 === to_copy[i].md5 );
             const beatmap_status = beatmap_in_osu_db ? convert_ranked( beatmap_in_osu_db.ranked_status_int ) : RankedStatus.unknown;
 
-            await save_osu_file_info_in_db( filepath_from, beatmap_status );
+            await save_osu_file_info_in_db( osu_db_results, filepath_from, beatmap_status );
         }
     
         console.log('> md5_storage_compare > complete');
@@ -212,16 +215,45 @@ module.exports = {
         const errors = await download_by_md5_list (missed_files_without_ignored);
 
         //save errors
-        const missing_beatmaps_md5_set = new Set( missing_beatmaps_info.map( x => x.md5 ) );
-        const new_errors = errors.filter( x => !missing_beatmaps_md5_set.has( x.md5 ) );
-        const old_errors = errors.filter( x => missing_beatmaps_md5_set.has( x.md5 ) );
+        const missing_beatmaps_md5_set = new Set( missed_files_without_ignored );
+        
+        const new_errors = errors.filter( x => missing_beatmaps_md5_set.has( x.md5 ) );
+        const old_errors = missing_beatmaps_info.filter( x => missing_beatmaps_md5_set.has( x.md5 ));
+
         old_errors.forEach( x => x.count = x.count + 1 );
-        const errors_joined = JSON.stringify([...old_errors, ...new_errors ]);
-        writeFileSync( missing_beatmaps_info_path, errors_joined, 'utf8' );
-        console.log(`new ${new_errors.length} of ${errors_joined.length} errors saved`);
+
+        const errors_joined = [...old_errors, ...new_errors ];
+
+        writeFileSync( missing_beatmaps_info_path, JSON.stringify(errors_joined), 'utf8' );
+        console.log(`new ${new_errors.length} and old ${old_errors.length} of ${errors_joined.length} errors updated`);
     },
 
-    validate_storage: () => {
+    remove_missed_osu_files: async (osu_db_results) => {
+        const missing_beatmaps_info = existsSync( missing_beatmaps_info_path ) ? JSON.parse( readFileSync( missing_beatmaps_info_path, 'utf8' )) : []
+            .filter(({ count }) => count >= missing_beatmap_max_check_count ) ;
+
+        let missing_beatmaps_info_changed = Object.assign( [], missing_beatmaps_info );
+
+        if (missing_beatmaps_info.length > 0) {
+            for(let { md5 } of missing_beatmaps_info){
+                const missing_beatmap_data = await find_beatmap({ beatmap_md5: md5 });
+                if (missing_beatmap_data){
+                    console.log('founded beatmap', missing_beatmap_data);
+                } else {
+                    //console.error('beatmap is not found in db');
+                    await remove_beatmap( osu_db_results, md5 );
+                    missing_beatmaps_info_changed = missing_beatmaps_info_changed.filter((x) => x.md5 !== md5);
+                }
+            }
+        }
+
+        if (missing_beatmaps_info.length !== missing_beatmaps_info_changed.length) {
+            writeFileSync( missing_beatmaps_info_path, JSON.stringify(missing_beatmaps_info_changed), 'utf8' );
+        }
+
+    },
+
+    validate_storage: async (osu_db_results) => {
         console.log('md5_storage > validating');        
         const md5_files = readdirSync( osu_md5_storage );
         console.log('md5 storage have', md5_files.length, 'beatmaps');
@@ -242,12 +274,16 @@ module.exports = {
             if (md5_hash !== md5_filename){
                 console.error( `warning! beatmap ${md5_filename} is not valid to ${md5_hash}` );
                 failed.push({ file: md5_filename, expected: md5_hash });
+                if (delete_failed_md5) {
+                    remove_beatmap( osu_db_results, md5_filename );
+                }
             }
         }
 
         console.log(`${failed.length} beatmaps md5 in not correct`);
-
+        
         writeFileSync( incorrect_md5_files_path , JSON.stringify(failed), 'utf8' );
+        
 
         return failed;
     },

@@ -5,8 +5,9 @@ const save_beatmap_info = require('./save_beatmap_info');
 const convert_ranked = require('./convert_ranked');
 
 const { osu_file_props } = require('../misc/consts');
+const { remove_beatmap } = require('../modules/beatmaps');
 
-const get_missed_data_from_bancho = async ( data ) => {
+const get_missed_data_from_bancho = async ( osu_db_results, data ) => {
 
     const beatmap = Object.assign( {}, data );
 
@@ -31,6 +32,7 @@ const get_missed_data_from_bancho = async ( data ) => {
             const beatmap_bancho = beatmapset_bancho.beatmaps.find( v => v.checksum === beatmap.checksum );
             if (!beatmap_bancho) {
                 console.error( `[${beatmap.checksum}] error > beatmap is not exists on bancho`);
+                await remove_beatmap(osu_db_results, beatmap.checksum);
             } else {
                 if (condition.status) 
                     beatmap.ranked = convert_ranked(beatmap_bancho.ranked);
@@ -57,7 +59,7 @@ const get_missed_data_from_bancho = async ( data ) => {
     return beatmap;
 }
 
-module.exports = async (filepath, beatmap_status = RankedStatus.unknown) => {
+module.exports = async (osu_db_results, filepath, beatmap_status = RankedStatus.unknown) => {
     const parsed_beatmap = parse_osu_file(filepath, osu_file_props, { is_hit_objects_only_count: true });
     const beatmap = { ...parsed_beatmap.metadata, ...parsed_beatmap.general };
 
@@ -73,7 +75,7 @@ module.exports = async (filepath, beatmap_status = RankedStatus.unknown) => {
         ranked: beatmap_status
     }
 
-    data = await get_missed_data_from_bancho( data );
+    data = await get_missed_data_from_bancho( osu_db_results, data );
 
     await save_beatmap_info ( data );
 }
