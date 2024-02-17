@@ -33,6 +33,7 @@ const get_missed_data_from_bancho = async ( data ) => {
             if (!beatmap_bancho) {
                 console.error( `[${beatmap.checksum}] error > beatmap is not exists on bancho`);
                 await remove_beatmap(beatmap.checksum);
+                return null;
             } else {
                 if (condition.status) 
                     beatmap.ranked = convert_ranked(beatmap_bancho.ranked);

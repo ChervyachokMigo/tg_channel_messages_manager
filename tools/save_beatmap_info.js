@@ -2,6 +2,11 @@ const { MYSQL_SAVE } = require("../modules/DB/base");
 const { get_md5_id } = require("../modules/beatmaps");
 
 module.exports = async ( beatmap_info ) => {
+    if (!beatmap_info) {
+        console.error('ignore beatmap for adding in db');
+        return;
+    }
+
     const beatmap_md5_id = await get_md5_id(beatmap_info.checksum);
     
     try {

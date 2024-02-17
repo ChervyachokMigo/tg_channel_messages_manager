@@ -16,15 +16,10 @@ const beatmaps_md5_db = path.join(userdata_path, 'beatmaps_md5_db.json');
 const missing_beatmaps_info_path = path.join( userdata_path, 'missing_beatmaps_info.json' );
 const incorrect_md5_files_path =  path.join( userdata_path, 'incorrect_md5_files.json' );
 
-const blocked_files = [
-   /* '7618a9c8a083537383bb76d641762159',
-    'd41d8cd98f00b204e9800998ecf8427e'*/
-];
-
 const { osu_beatmap_id, beatmaps_md5 } = require('./DB/defines.js');
 const save_osu_file_info_in_db = require('../tools/save_osu_file_info_in_db.js');
 
-const { osu_file_props } = require('../misc/consts.js');
+const { osu_file_props, blocked_md5 } = require('../misc/consts.js');
 const convert_ranked = require('../tools/convert_ranked.js');
 const { remove_beatmap } = require('./beatmaps.js');
 const find_beatmap = require("../tools/find_beatmap");
@@ -36,7 +31,7 @@ const make_beatmaps_db = () => {
     let beatmaps_db = existsSync( beatmaps_md5_db )? 
         JSON.parse( readFileSync( beatmaps_md5_db, {encoding: 'utf8'} )): [];
 
-    const beatmaps_list = beatmaps_db.filter( val => blocked_files.indexOf( val.md5 ) === -1 ).map( data => data['fpr'] );
+    const beatmaps_list = beatmaps_db.filter( val => blocked_md5.indexOf( val.md5 ) === -1 ).map( data => data['fpr'] );
 
     const files = globSync( songs_path + '/**/*.osu', { 
         absolute: false, 
@@ -201,22 +196,22 @@ module.exports = {
             .map( x => x.hash )
             .filter( md5 => !storage_files_set.has(md5) );
             
-        const missed_files_without_ignored = missed_files.filter( md5 => {
+        const missed_files_filter_ignored = missed_files.filter( md5 => {
             const miss_map = missing_beatmaps_info.find( v => v.md5 === md5 );
             if ( miss_map && miss_map.count >= missing_beatmap_max_check_count ) {
                 return false;
             } else {
                 return true;
             }
-        });
+        }).filter( md5 => blocked_md5.indexOf(md5) === -1 );
 
         console.log('md5_storage have', missed_files.length, 'missed files');
-        console.log('md5_storage have', missed_files_without_ignored.length, 'missed without ignored files');
+        console.log('md5_storage have', missed_files_filter_ignored.length, 'missed_files_filter_ignored files');
 
-        const errors = await download_by_md5_list (missed_files_without_ignored);
+        const errors = await download_by_md5_list (missed_files_filter_ignored);
 
         //save errors
-        const missing_beatmaps_md5_set = new Set( missed_files_without_ignored );
+        const missing_beatmaps_md5_set = new Set( missed_files_filter_ignored );
         
         const new_errors = errors.filter( x => missing_beatmaps_md5_set.has( x.md5 ) );
         const old_errors = missing_beatmaps_info.filter( x => missing_beatmaps_md5_set.has( x.md5 ));
@@ -242,6 +237,7 @@ module.exports = {
                     console.log('founded beatmap', missing_beatmap_data);
                 } else {
                     //console.error('beatmap is not found in db');
+                    //delete from chat
                     await remove_beatmap( md5 );
                     missing_beatmaps_info_changed = missing_beatmaps_info_changed.filter((x) => x.md5 !== md5);
                 }

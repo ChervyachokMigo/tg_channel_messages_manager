@@ -10,7 +10,7 @@ module.exports = async ( beatmaps, continue_page = 0) => {
         return null;
     }
 
-    const files_ids = Array.from( new Set( beatmaps.map( x => x.message_id )));
+    const files_ids = beatmaps.map( x => x.message_id ).filter( x => x );
 
     console.log('downloading beatmap sets', files_ids.length);
 
@@ -21,9 +21,13 @@ module.exports = async ( beatmaps, continue_page = 0) => {
     /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "[k]" }]*/
     for (let k in chunks.data){
         const chunk = await get_next_chunk( chunks.arr_id, time_delay );
-        //                                              filter null and undefined
 
-        const messages = await get_messages( chunk.data.filter( x => x ) );
+        if (chunk.data.length == 0) {
+            console.log( 'warning! empty chunk' );
+            continue;
+        }
+
+        const messages = await get_messages( chunk.data );
 
         if (messages.length !== chunk.data.length ) 
             console.log('warning! miss message_id from list', chunk.data );

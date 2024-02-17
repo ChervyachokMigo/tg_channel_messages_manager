@@ -53,6 +53,8 @@ osu_db.init();
         validate_storage();
     }
 
+    //compare_sended_beatmaps
+
     await tg_bot.load();
 
     const action = argv.shift();
@@ -106,7 +108,9 @@ osu_db.init();
     await sync_db_records_of_chat_beatmaps(channel_beatmaps);
 
     //check missed beatmapsets info as artist, title, gamemode, ranked etc
-    const miss_info_beatmapsets = new Set(await check_saved_beatmaps_info(channel_beatmaps));
+    const miss_info_beatmapsets = new Set((
+        await check_saved_beatmaps_info( channel_beatmaps ))
+        .map( x => x.beatmapset_id ));
 
     if (miss_info_beatmapsets.size > 0){
 
