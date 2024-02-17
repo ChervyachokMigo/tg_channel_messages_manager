@@ -58,7 +58,7 @@ osu_db.init();
 
     if (action === 'download') {
         const input_args = input.text('[Download beatmaps] Enter arguments (Skip for default):');
-        await command_download_beatmaps([...argv, input_args], channel_beatmaps);
+        await command_download_beatmaps([...argv, ...input_args], channel_beatmaps);
         return;
     } else if ( action === 'update_beatmaps_info') {
         await update_beatmaps_info();
