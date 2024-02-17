@@ -116,6 +116,7 @@ const mysql_actions = [
 ];
 
 module.exports = {
+    mysql_actions,
     
     osu_beatmaps_mysql,
     tg_mysql,
