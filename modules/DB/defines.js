@@ -4,6 +4,19 @@ const { Sequelize, DataTypes } = require('@sequelize/core');
 const { DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME_TG, DB_NAME_BEATMAPS } = require("../../userdata/config.js");
 
 const tg_mysql = new Sequelize( DB_NAME_TG, DB_USER, DB_PASSWORD, { 
+    host: DB_HOST || 'localhost',  
+    port: DB_PORT || 3306,
+    dialect: `mysql`,
+    define: {
+        updatedAt: false,
+        createdAt: false,
+        deletedAt: false
+    },
+});
+
+const osu_beatmaps_mysql = new Sequelize( DB_NAME_BEATMAPS, DB_USER, DB_PASSWORD, { 
+    host: DB_HOST || 'localhost',   
+    port: DB_PORT || 3306,
     dialect: `mysql`,
     define: {
         updatedAt: false,
@@ -13,76 +26,69 @@ const tg_mysql = new Sequelize( DB_NAME_TG, DB_USER, DB_PASSWORD, {
 });
 
 const sended_map_db = tg_mysql.define ('sended_map', {
-    beatmapset_id: { type: DataTypes.INTEGER, defaultValue: 0 },
+    beatmapset_id: { type: DataTypes.INTEGER },
 });
 
 const map_to_download_db = tg_mysql.define ('map_to_download', {
-    beatmapset_id: { type: DataTypes.INTEGER, defaultValue: 0 },
+    beatmapset_id: { type: DataTypes.INTEGER },
 });
 
 const map_not_found = tg_mysql.define ('bancho_not_found', {
-    beatmapset_id: { type: DataTypes.INTEGER, defaultValue: 0 },
+    beatmapset_id: { type: DataTypes.INTEGER },
 });
 
 const map_too_long = tg_mysql.define ('map_too_long', {
-    beatmapset_id: { type: DataTypes.INTEGER, defaultValue: 0 },
+    beatmapset_id: { type: DataTypes.INTEGER },
 });
 
-const osu_beatmaps_mysql = new Sequelize( DB_NAME_BEATMAPS, DB_USER, DB_PASSWORD, { 
-    dialect: `mysql`,
-    define: {
-        updatedAt: false,
-        createdAt: false,
-        deletedAt: false
-    },
-});
+
 
 const beatmaps_md5 = osu_beatmaps_mysql.define ('beatmaps_md5', {
-    hash: {type: DataTypes.STRING(32),  defaultvalue: '', allowNull: false, unique: true, index: true},
+    hash: {type: DataTypes.STRING(32),  allowNull: false, unique: true, index: true},
 });
 
 const osu_beatmap_pp = osu_beatmaps_mysql.define ('osu_beatmap_pp', {
-    md5: {type: DataTypes.INTEGER,  defaultvalue: 0, allowNull: false, unique: 'action_key'},
-    mods: {type: DataTypes.INTEGER,  defaultvalue: 0, allowNull: false, unique: 'action_key'},
-    accuracy: {type: DataTypes.INTEGER,  defaultvalue: 100, allowNull: false, unique: 'action_key'},
-    pp_total: {type: DataTypes.INTEGER,  defaultvalue: 0, allowNull: false},
-    pp_aim: {type: DataTypes.INTEGER,  defaultvalue: 0, allowNull: false},
-    pp_speed: {type: DataTypes.INTEGER,  defaultvalue: 0, allowNull: false},
-    pp_accuracy: {type: DataTypes.INTEGER,  defaultvalue: 0, allowNull: false},
-    stars: {type: DataTypes.FLOAT,  defaultvalue: 0, allowNull: false},
-    diff_aim: {type: DataTypes.FLOAT,  defaultvalue: 0, allowNull: false},
-    diff_speed: {type: DataTypes.FLOAT,  defaultvalue: 0, allowNull: false},
-    diff_sliders: {type: DataTypes.FLOAT,  defaultvalue: 0, allowNull: false},
-    speed_notes: {type: DataTypes.INTEGER,  defaultvalue: 0, allowNull: false},
-    AR: {type: DataTypes.FLOAT,  defaultvalue: 0, allowNull: false},
-    OD: {type: DataTypes.FLOAT,  defaultvalue: 0, allowNull: false},
+    md5: {type: DataTypes.INTEGER, allowNull: false, unique: 'action_key'},
+    mods: {type: DataTypes.INTEGER, allowNull: false, unique: 'action_key'},
+    accuracy: {type: DataTypes.INTEGER, allowNull: false, unique: 'action_key'},
+    pp_total: {type: DataTypes.INTEGER, allowNull: false},
+    pp_aim: {type: DataTypes.INTEGER, allowNull: false},
+    pp_speed: {type: DataTypes.INTEGER, allowNull: false},
+    pp_accuracy: {type: DataTypes.INTEGER, allowNull: false},
+    stars: {type: DataTypes.FLOAT, allowNull: false},
+    diff_aim: {type: DataTypes.FLOAT, allowNull: false},
+    diff_speed: {type: DataTypes.FLOAT, allowNull: false},
+    diff_sliders: {type: DataTypes.FLOAT, allowNull: false},
+    speed_notes: {type: DataTypes.INTEGER, allowNull: false},
+    AR: {type: DataTypes.FLOAT, allowNull: false},
+    OD: {type: DataTypes.FLOAT, allowNull: false},
 });
 
 const osu_beatmap_id = osu_beatmaps_mysql.define ('beatmap_id', {
-    md5: {type: DataTypes.INTEGER,  defaultvalue: 0, allowNull: false, unique: true, primaryKey: true},
-    beatmap_id: {type: DataTypes.INTEGER,  defaultvalue: 0, allowNull: false},
-    beatmapset_id: {type: DataTypes.INTEGER,  defaultvalue: 0, allowNull: false},
-    gamemode: {type: DataTypes.TINYINT.UNSIGNED,  defaultvalue: '', allowNull: false},
-    ranked: {type: DataTypes.TINYINT,  defaultvalue: 0, allowNull: false},
+    md5: {type: DataTypes.INTEGER,  allowNull: false, unique: true, primaryKey: true},
+    beatmap_id: {type: DataTypes.INTEGER,  allowNull: false},
+    beatmapset_id: {type: DataTypes.INTEGER,  allowNull: false},
+    gamemode: {type: DataTypes.TINYINT.UNSIGNED,  allowNull: false},
+    ranked: {type: DataTypes.TINYINT,  allowNull: false},
 }, {noPrimaryKey: false});
 
 const beatmap_info = osu_beatmaps_mysql.define ('beatmap_info', {
-    md5: {type: DataTypes.INTEGER,  defaultvalue: 0, allowNull: false, unique: true, primaryKey: true},
-    artist: {type: DataTypes.STRING,  defaultvalue: '', allowNull: false},
-    title: {type: DataTypes.STRING,  defaultvalue: '', allowNull: false},
-    creator: {type: DataTypes.STRING,  defaultvalue: '', allowNull: false},
-    difficulty: {type: DataTypes.STRING,  defaultvalue: '', allowNull: false},
+    md5: {type: DataTypes.INTEGER,  allowNull: false, unique: true, primaryKey: true},
+    artist: {type: DataTypes.STRING,  allowNull: false},
+    title: {type: DataTypes.STRING,  allowNull: false},
+    creator: {type: DataTypes.STRING,  allowNull: false},
+    difficulty: {type: DataTypes.STRING,  allowNull: false},
 }, {noPrimaryKey: false});
 
 const beatmap_star = osu_beatmaps_mysql.define ('beatmap_star', {
-    md5: {type: DataTypes.INTEGER,  defaultvalue: 0, allowNull: false, unique: true, primaryKey: true},
-    local: {type: DataTypes.FLOAT,  defaultvalue: 0, allowNull: false},
-    lazer: {type: DataTypes.FLOAT,  defaultvalue: 0, allowNull: false},
+    md5: {type: DataTypes.INTEGER,  allowNull: false, unique: true, primaryKey: true},
+    local: {type: DataTypes.FLOAT,  allowNull: false},
+    lazer: {type: DataTypes.FLOAT,  allowNull: false},
 }, {noPrimaryKey: false});
 
 const tg_file = osu_beatmaps_mysql.define ('tg_file', {
-    beatmapset_id: {type: DataTypes.INTEGER,  defaultvalue: -1, allowNull: false, unique: true, primaryKey: true},
-    message_id: {type: DataTypes.INTEGER, defaultvalue: null, allowNull: true}
+    beatmapset_id: {type: DataTypes.INTEGER, allowNull: false, unique: true, primaryKey: true},
+    message_id: {type: DataTypes.INTEGER, allowNull: true}
 }, {noPrimaryKey: false});
 
 beatmaps_md5.hasOne(osu_beatmap_id, { foreignKey: 'md5', foreignKeyConstraints: false});
@@ -141,6 +147,15 @@ module.exports = {
             await connection.query(`CREATE DATABASE IF NOT EXISTS \`${DB_NAME_BEATMAPS}\`;`);
             await connection.query(`CREATE DATABASE IF NOT EXISTS \`${DB_NAME_TG}\`;`);
         } catch (e){
+            console.error('проверьте правильность данных data\\config.js\n');
+            console.log( '', 
+                `DB_HOST: ${ !DB_HOST ? 'Ошибка: отсутствует значение\n' : `${DB_HOST} (${typeof DB_HOST})\n` }`, 
+                `DB_PORT: ${ !DB_PORT ? 'Ошибка: отсутствует значение\n' : `${DB_PORT} (${typeof DB_PORT})\n` }`, 
+                `DB_USER: ${ !DB_USER ? 'Ошибка: отсутствует значение\n' : `${DB_USER} (${typeof DB_USER})\n` }`, 
+                `DB_PASSWORD: ${ !DB_PASSWORD ? 'Ошибка: отсутствует значение\n' : `${DB_PASSWORD} (${typeof DB_PASSWORD})\n` }`, 
+                `DB_NAME_BEATMAPS: ${ !DB_NAME_BEATMAPS ? 'Ошибка: отсутствует значение\n' : `${DB_NAME_BEATMAPS} (${typeof DB_NAME_BEATMAPS})\n` }`, 
+                `DB_NAME_TG: ${ !DB_NAME_TG ? 'Ошибка: отсутствует значение\n' : `${DB_NAME_TG} (${typeof DB_NAME_TG})\n` }`, 
+            );
             if (e.code === 'ECONNREFUSED' || e.name === `SequelizeConnectionRefusedError`){
                 throw new Error('Нет доступа к базе');
             } else {

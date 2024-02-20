@@ -23,6 +23,7 @@ module.exports = {
             if (e.code === 'ECONNREFUSED' || e.name === `SequelizeConnectionRefusedError`){
                 throw new Error(`Нет доступа к базе данных.`);
             } else {
+                console.error( 'action', action, 'params', condition );
                 throw new Error(e);
             }
         }
@@ -42,6 +43,7 @@ module.exports = {
             if (e.code === 'ECONNREFUSED' || e.name === `SequelizeConnectionRefusedError`){
                 throw new Error(`Нет доступа к базе данных.`);
             } else {
+                console.error( 'action', action, 'params', params, 'attributes', attributes );
                 throw new Error(e);
             }
         }    
@@ -55,6 +57,7 @@ module.exports = {
             if (e.code === 'ECONNREFUSED' || e.name === `SequelizeConnectionRefusedError`){
                 throw new Error(`Нет доступа к базе данных.`);
             } else {
+                console.error( 'action', action, 'condition', condition, 'values', values );
                 throw new Error(e);
             }
         }    
@@ -76,7 +79,7 @@ module.exports = {
         }   
     },
 
-    MYSQL_SAVE: async ( action, keys, values) => {
+    MYSQL_SAVE: async ( action, keys, values ) => {
         const MysqlModel = select_mysql_model(action);
 
         if ( keys && Object.keys(keys).length > 0 ){
@@ -88,7 +91,8 @@ module.exports = {
                 return await MysqlModel.bulkCreate(
                     values, {
                         logging: false, 
-                        ignoreDuplicates: true,
+                        //ignoreDuplicates: true,
+                        updateOnDuplicate: true,
                 });
             } else {
                 return (await MysqlModel.upsert(
@@ -102,6 +106,7 @@ module.exports = {
             if (e.code === 'ECONNREFUSED' || e.name === `SequelizeConnectionRefusedError`){
                 throw new Error(`Нет доступа к базе данных.`);
             } else {
+                console.error( 'action', action, 'keys', keys, 'values', values );
                 throw new Error(e);
             }
         }       
