@@ -10,11 +10,9 @@ const { MYSQL_GET_ALL } = require('MYSQL-tools');
 const result_errors_path = path.join(userdata_path, 'not_existed_info_beatmaps.json');
 
 module.exports = async (channel_beatmaps) => {
-    const beatmaps_ids_chat = channel_beatmaps.map( x => x.beatmapset_id );
 
-    const beatmapset_ids = new Set(( 
-        await MYSQL_GET_ALL({ action: 'beatmap_id' }))
-        .map( x => x.beatmapset_id ));
+    const beatmaps_ids_chat = channel_beatmaps.map( x => x.beatmapset_id );
+    const beatmapset_ids = new Set( (await MYSQL_GET_ALL({ action: 'beatmap_id' })).map( x => x.beatmapset_id ));
 
     let result_errors = existsSync(result_errors_path) ? JSON.parse(readFileSync(result_errors_path, 'utf8')) : [];
 
@@ -35,7 +33,7 @@ module.exports = async (channel_beatmaps) => {
 
                 const beatmapset = await v2.beatmap.set.details(beatmapset_id);
 
-                if (typeof beatmapset.error === 'object') {
+                if (typeof beatmapset.error !== 'undefined') {
                     console.error(beatmapset_id, 'error', beatmapset.error);
                     console.error('skipped, beatmap is not exists on bancho');
 
