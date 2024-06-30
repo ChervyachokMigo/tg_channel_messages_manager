@@ -1,7 +1,5 @@
+const { MYSQL_GET_ALL } = require("MYSQL-tools");
 const { save_csv } = require("../tools/csv");
-const { MYSQL_GET_ALL } = require("./DB/base");
-
-
 
 module.exports = {
     export_table_to_csv: async (tablename) => {
@@ -10,7 +8,7 @@ module.exports = {
         }
     
         console.log('exporting >', tablename);
-        const mysql_values = await MYSQL_GET_ALL( tablename );
+        const mysql_values = await MYSQL_GET_ALL({ action: tablename });
         save_csv( mysql_values, tablename );
     
         console.log('export complete.');

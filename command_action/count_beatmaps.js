@@ -23,6 +23,6 @@ module.exports = async () => {
                 .filter( b => b.gamemode === m[1] && b.ranked === s[1] ).length;
             console.log( `${m[0]}: ${selected_modes_length}` );
         }
-    };
+    }
     
 }

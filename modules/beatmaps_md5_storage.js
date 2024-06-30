@@ -16,7 +16,6 @@ const beatmaps_md5_db = path.join(userdata_path, 'beatmaps_md5_db.json');
 const missing_beatmaps_info_path = path.join( userdata_path, 'missing_beatmaps_info.json' );
 const incorrect_md5_files_path =  path.join( userdata_path, 'incorrect_md5_files.json' );
 
-const { osu_beatmap_id, beatmaps_md5 } = require('./DB/defines.js');
 const save_osu_file_info_in_db = require('../tools/save_osu_file_info_in_db.js');
 
 const { osu_file_props, blocked_md5 } = require('../misc/consts.js');
@@ -24,6 +23,7 @@ const convert_ranked = require('../tools/convert_ranked.js');
 const { remove_beatmap } = require('./beatmaps.js');
 const find_beatmap = require("../tools/find_beatmap");
 const osu_db = require('./osu_db.js');
+const { select_mysql_model, MYSQL_GET_ALL } = require('MYSQL-tools');
 
 const make_beatmaps_db = () => {
     console.log('> make_beatmaps_db > reading "Songs"...');
@@ -86,6 +86,9 @@ const download_beatmap_content = async ({ beatmap_id, md5 }, output_path, is_md5
 }
 
 const get_beatmap_id = async ({ md5 }) => {
+	const beatmaps_md5 = select_mysql_model('beatmaps_md5');
+	const osu_beatmap_id = select_mysql_model('beatmap_id');
+
     return await osu_beatmap_id.findOne({
         
         include: [{ model: beatmaps_md5, 
@@ -191,8 +194,7 @@ module.exports = {
         const storage_files_set = new Set(readdirSync( osu_md5_storage )
             .map( x => x.slice(0, x.length-4) ));
 
-        const missed_files = 
-            (await beatmaps_md5.findAll({ logging: false, raw: true }))
+        const missed_files = (await MYSQL_GET_ALL({ action: 'beatmaps_md5' }))
             .map( x => x.hash )
             .filter( md5 => !storage_files_set.has(md5) );
             
@@ -214,7 +216,7 @@ module.exports = {
         const missing_beatmaps_md5_set = new Set( missed_files_filter_ignored );
         
         const new_errors = errors.filter( x => missing_beatmaps_md5_set.has( x.md5 ) );
-        const old_errors = missing_beatmaps_info.filter( x => missing_beatmaps_md5_set.has( x.md5 ));
+        const old_errors = missing_beatmaps_info.filter( x => !missing_beatmaps_md5_set.has( x.md5 ));
 
         old_errors.forEach( x => x.count = x.count + 1 );
 

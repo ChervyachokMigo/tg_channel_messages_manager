@@ -1,9 +1,9 @@
 const { rmSync } = require('fs');
 const path = require('path');
 
-const { beatmaps_md5 } = require("../modules/DB/defines");
-const { debug_beatmapset_id, osu_md5_storage, osu_path } = require("../userdata/config");
+const { debug_beatmapset_id, osu_md5_storage, osu_path, is_allow_delete } = require("../userdata/config");
 const osu_db = require('./osu_db');
+const { select_mysql_model, MYSQL_DELETE } = require('MYSQL-tools');
 
 const songs_path = path.join(osu_path, 'Songs');
 
@@ -12,7 +12,7 @@ const beatmap_pattern = /https:\/\/osu\.ppy\.sh\/beatmapsets\/([0-9]+)(#([A-Za-z
 
 let unique_beatmaps = new Set();
 
-module.exports = {
+const _this = module.exports = {
     get_beatmapset_id: (info_message) => {
         const res = info_message.text_entities.map( x => x.text ).join(' ').match(beatmap_pattern);
         if (res && res.length > 1 ){
@@ -37,7 +37,9 @@ module.exports = {
         if (typeof hash !== 'string' && hash.length !== 32){
             return null;
         }
-    
+
+		const beatmaps_md5 = select_mysql_model('beatmaps_md5');
+
         const result = await beatmaps_md5.findOrCreate({ 
             where: { hash },
             logging: false
@@ -55,11 +57,8 @@ module.exports = {
             console.error('cant remove beatmap:', hash );
             return;
         }
-        try{
-            await beatmaps_md5.destroy({ where: { hash }, logging: false});
-        } catch (e) {
-            //
-        }
+
+		await MYSQL_DELETE('beatmaps_md5', { hash });
     },
 
     remove_beatmap_songs: (md5) => {
@@ -100,10 +99,12 @@ module.exports = {
             console.error('cant remove beatmap:', md5);
             return;
         }
-        console.error( `deleting ${md5}` );
-        module.exports.remove_beatmap_songs( md5 );
-        module.exports.remove_beatmap_storage( md5 );
-        await module.exports.remove_beatmap_db( md5 );
+        if (is_allow_delete) {
+            console.error( `deleting ${md5}` );
+            _this.remove_beatmap_songs( md5 );
+            _this.remove_beatmap_storage( md5 );
+            await _this.remove_beatmap_db( md5 );
+        }
     }
 
 }

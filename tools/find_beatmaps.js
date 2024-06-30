@@ -1,5 +1,4 @@
-
-const { beatmaps_md5, osu_beatmap_id, beatmap_info } = require("../modules/DB/defines");
+const { select_mysql_model } = require("MYSQL-tools");
 
 module.exports = async ({ 
     beatmap_md5 = null, 
@@ -21,6 +20,9 @@ module.exports = async ({
     if (beatmapset_id) 
         beatmap_id_condition.beatmapset_id = beatmapset_id;
 
+	const beatmaps_md5 = select_mysql_model('beatmaps_md5');
+	const osu_beatmap_id = select_mysql_model('beatmap_id');
+	const beatmap_info = select_mysql_model('beatmap_info');
 
     return await osu_beatmap_id.findAll({
         where: beatmap_id_condition,

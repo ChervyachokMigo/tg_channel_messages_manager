@@ -3,7 +3,7 @@ const path = require('path');
 
 const { folder_prepare } = require('./misc/tools.js');
 const tg_channel_messages_parser = require('./tools/tg_channel_messages_parser.js');
-const { prepareDB, mysql_actions } = require('./modules/DB/defines');
+const { prepareDB } = require('./modules/DB/defines');
 const { sync_db_records_of_channel_beatmaps } = require('./tools/check_beatmaps_in_db.js');
 const check_saved_beatmaps_info = require('./tools/check_saved_beatmaps_info.js');
 const auth_osu = require('./modules/osu_auth.js');
@@ -23,6 +23,7 @@ const { userdata_path, download_folder, forever_overwrite_md5_db, osu_md5_storag
 const update_beatmaps_info = require('./command_action/update_beatmaps_info.js');
 const count_beatmaps = require('./command_action/count_beatmaps.js');
 const { export_table_to_csv } = require('./modules/db_backup.js');
+const { get_models_names } = require('MYSQL-tools');
 const dowload_path = path.join( userdata_path, download_folder );
 
 // eslint-disable-next-line no-undef
@@ -69,7 +70,7 @@ osu_db.init();
         await count_beatmaps();
         return;
     } else if ( action === 'export_db' ){
-        const tables = mysql_actions.map( x => x.names );
+        const tables = get_models_names();
         for (let tablename of tables){
             await export_table_to_csv(tablename);
         }

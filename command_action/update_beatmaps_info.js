@@ -44,7 +44,7 @@ module.exports = async () => {
                     is_continue = false;
                 }
             } else {
-                console.log('banco not response');
+                console.log('bancho not response');
                 break;
             }
         } catch (e) {

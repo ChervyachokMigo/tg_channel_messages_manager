@@ -1,13 +1,12 @@
 const { split_arr, get_next_chunk } = require("delayed_chunks");
 
-const { tg_file } = require("../modules/DB/defines");
-const { MYSQL_GET_ALL } = require("../modules/DB/base");
+const { MYSQL_GET_ALL, MYSQL_SAVE } = require("MYSQL-tools");
 
 module.exports = async ( channel_beatmaps ) => {
     const chunk_size = 200;
 
     //filter out beatmaps that not saved in db
-    const db_records_set = new Set( (await MYSQL_GET_ALL('tg_file',{}, { fields: ['beatmapset_id'] }))
+    const db_records_set = new Set( (await MYSQL_GET_ALL({ action: 'tg_file', attributes: { fields: ['beatmapset_id'] }}))
         .map( x => x.beatmapset_id ));
     const filtred_channel_beatmaps = channel_beatmaps.filter( x => !db_records_set.has( x.beatmapset_id ));
 
@@ -25,7 +24,7 @@ module.exports = async ( channel_beatmaps ) => {
         if (!chunk) break;
 
         console.log( `tg_file saving chunk of ${chunk_size} records:`, `${chunk.inc}/${chunk.length}` );
-        await tg_file.bulkCreate( chunk.data, { logging: false, ignoreDuplicates: true });
+		await MYSQL_SAVE('tg_file', chunk.data );
     }
     console.log('saving complete');
 

@@ -5,8 +5,8 @@ module.exports = {
     DB_USER: ``, 
     DB_PASSWORD: ``, 
 
-    DB_NAME_TG: `tg_bot`,
-    DB_NAME_BEATMAPS: 'osu_beatmaps',
+    DB_TELEGRAM: `tg_bot`,
+    DB_BEATMAPS: 'osu_beatmaps',
 
     login: '',
     password: '',
@@ -47,4 +47,5 @@ module.exports = {
     print_progress_frequency: 10,    // 1 = 0.1 %, 10 = 1%, 100 = 10%, 
     missing_beatmap_max_check_count: 1,
     
+    is_allow_delete: false,
 }

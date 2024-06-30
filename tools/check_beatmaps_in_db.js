@@ -1,4 +1,5 @@
-const { MYSQL_SAVE, MYSQL_DELETE, MYSQL_GET_ALL } = require("../modules/DB/base");
+
+const { MYSQL_GET_ALL, MYSQL_SAVE, MYSQL_DELETE } = require("MYSQL-tools");
 const { check_beatmaps_db_records } = require("../userdata/config");
 
 module.exports = {
@@ -10,7 +11,7 @@ module.exports = {
         for(let beatmapset_id of channel_beatmaps_ids){
             if (!sended_db_set.has(beatmapset_id)){
                 console.log('need add to db', beatmapset_id);
-                //await MYSQL_SAVE('sended_map_db', { beatmapset_id }, { beatmapset_id });
+                //await MYSQL_SAVE('sended_map', { beatmapset_id });
             }
         }
     
@@ -25,7 +26,7 @@ module.exports = {
         for(let beatmapset_id of beatmaps_db){
             if (!sended_chat.has(beatmapset_id)){
                 console.log('need delete from db', beatmapset_id);
-                //await MYSQL_DELETE('sended_map_db', { beatmapset_id });
+                //await MYSQL_DELETE('sended_map', { beatmapset_id });
             }
         }
     
@@ -34,7 +35,7 @@ module.exports = {
 
     sync_db_records_of_channel_beatmaps: async (channel_beatmaps) => {
         const channel_beatmaps_ids = channel_beatmaps.map( x => x.beatmapset_id );
-        const sended_maps_db = (await MYSQL_GET_ALL('sended_map_db'))
+        const sended_maps_db = (await MYSQL_GET_ALL({ action: 'sended_map' }))
             .map( x => x.beatmapset_id );
             
         console.log( 'loaded chat sended_beatmaps from db', sended_maps_db.length );

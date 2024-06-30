@@ -2,10 +2,10 @@ const { existsSync, readFileSync, writeFileSync } = require('fs');
 const path = require('path');
 const { v2 } = require('osu-api-extended');
 
-const { MYSQL_GET_ALL } = require('../modules/DB/base.js');
 const convert_ranked = require('./convert_ranked.js');
 const { userdata_path } = require('../userdata/config.js');
 const save_beatmap_info = require('./save_beatmap_info.js');
+const { MYSQL_GET_ALL } = require('MYSQL-tools');
 
 const result_errors_path = path.join(userdata_path, 'not_existed_info_beatmaps.json');
 
@@ -13,7 +13,7 @@ module.exports = async (channel_beatmaps) => {
     const beatmaps_ids_chat = channel_beatmaps.map( x => x.beatmapset_id );
 
     const beatmapset_ids = new Set(( 
-        await MYSQL_GET_ALL('beatmap_id'))
+        await MYSQL_GET_ALL({ action: 'beatmap_id' }))
         .map( x => x.beatmapset_id ));
 
     let result_errors = existsSync(result_errors_path) ? JSON.parse(readFileSync(result_errors_path, 'utf8')) : [];
