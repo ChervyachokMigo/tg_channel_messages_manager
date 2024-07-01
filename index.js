@@ -22,8 +22,9 @@ const command_download_beatmaps = require('./command_action/command_download_bea
 const { userdata_path, download_folder, forever_overwrite_md5_db, osu_md5_storage, validate_md5 } = require('./userdata/config.js');
 const update_beatmaps_info = require('./command_action/update_beatmaps_info.js');
 const count_beatmaps = require('./command_action/count_beatmaps.js');
-const { export_table_to_csv } = require('./modules/db_backup.js');
-const { get_models_names } = require('MYSQL-tools');
+
+const { get_models_names, export_table_csv } = require('MYSQL-tools');
+
 const dowload_path = path.join( userdata_path, download_folder );
 
 // eslint-disable-next-line no-undef
@@ -71,8 +72,10 @@ osu_db.init();
         return;
     } else if ( action === 'export_db' ){
         const tables = get_models_names();
+		const { userdata_path } = require('./userdata/config');
+		const backup_path = path.join( userdata_path, 'backups');
         for (let tablename of tables){
-            await export_table_to_csv(tablename);
+            await export_table_csv({ folder_path: backup_path, tablename });
         }
         return;
     }
